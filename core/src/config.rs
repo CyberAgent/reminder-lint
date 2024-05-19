@@ -1,6 +1,4 @@
-use std::error::Error;
-
-use config::Config as ConfigBuilder;
+use config::{Config as ConfigBuilder, ConfigError};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
@@ -14,7 +12,7 @@ const DEFAULT_REMIND_COMMENT_REGEX: &str = r"remind:\W?";
 const DEFAULT_REMIND_DATETIME_FORMAT: &str = "%Y/%m/%d";
 const REMIND_ENV_PREFIX: &str = "REMIND";
 
-pub fn load_config(filename: &str) -> Result<Config, Box<dyn Error>> {
+pub fn load_config(filename: &str) -> Result<Config, ConfigError> {
     let settings = ConfigBuilder::builder()
         .set_default("comment_regex", DEFAULT_REMIND_COMMENT_REGEX)?
         .set_default("datetime_format", DEFAULT_REMIND_DATETIME_FORMAT)?
