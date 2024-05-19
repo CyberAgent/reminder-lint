@@ -1,3 +1,12 @@
+mod subcommand;
+
+use subcommand::execute_subcommand;
+
+use crate::args::Args;
+
+mod args;
+
 fn main() {
-    println!("Hello, world!");
+    let args: Args = Args::new();
+    execute_subcommand(args.command);
 }

@@ -7,12 +7,14 @@ use ignore::WalkBuilder;
 use regex::RegexBuilder;
 use std::io;
 
+#[derive(Debug)]
 pub struct Remind {
     pub datetime: i64,
     pub message: String,
     pub position: Position,
 }
 
+#[derive(Debug)]
 pub struct Position {
     pub file: String,
     pub line: u64,
@@ -80,27 +82,25 @@ fn line_processor<'a>(
     datetime_format: String,
     datetime_regex: &'a regex::Regex,
 ) -> UTF8<impl FnMut(u64, &str) -> Result<bool, io::Error> + 'a> {
-    UTF8(move |line_num, line| {
-        match datetime_regex.find(line) {
-            Some(m) => {
-                let datetime_str = m.as_str();
-                let parsed = parse_datetime(&datetime_str, &datetime_format);
-                let datetime = parsed.unwrap_or_else(|e| {
-                    eprintln!("Error parsing datetime: {}", e);
-                    0
-                });
-                reminds.push(Remind {
-                    datetime,
-                    message: line.trim_start().to_string(),
-                    position: Position {
-                        file: entry_path.clone(),
-                        line: line_num.into(),
-                    },
-                });
-                Ok(true)
-            }
-            None => Ok(false),
+    UTF8(move |line_num, line| match datetime_regex.find(line) {
+        Some(m) => {
+            let datetime_str = m.as_str();
+            let parsed = parse_datetime(&datetime_str, &datetime_format);
+            let datetime = parsed.unwrap_or_else(|e| {
+                eprintln!("Error parsing datetime: {}", e);
+                0
+            });
+            reminds.push(Remind {
+                datetime,
+                message: line.trim_start().to_string(),
+                position: Position {
+                    file: entry_path.clone(),
+                    line: line_num.into(),
+                },
+            });
+            Ok(true)
         }
+        None => Ok(false),
     })
 }
 
