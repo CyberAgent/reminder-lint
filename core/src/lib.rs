@@ -1,7 +1,7 @@
-mod config;
+pub mod config;
 pub mod error;
-mod options;
-mod remind;
+pub mod options;
+pub mod remind;
 
 use error::ReminderLintError;
 pub use options::ReminderOptions;

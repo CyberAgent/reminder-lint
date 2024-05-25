@@ -1,19 +1,111 @@
 use crate::args::InitCommand;
 use crate::print::{pretty_print, Status};
 use anyhow::Error;
+use promptuity::prompts::{Confirm, Input, Select, SelectOption};
+use promptuity::themes::FancyTheme;
+use promptuity::{Promptuity, Term};
+use reminder_lint_core::config::Config;
+use reminder_lint_core::options::{DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH};
 
-const PATH: &str = "remind.yaml";
-const CONFIG: &str = r"comment_regex: 'remind:\W?'
-datetime_format: '%Y/%m/%d'
-search_directory: .";
+struct InitPromptResult {
+    config: Option<Config>,
+    ignore: bool,
+}
 
-pub fn execute_init(_command: InitCommand) -> Result<(), Error> {
-    if std::path::Path::new(PATH).exists() {
-        pretty_print(format!("Error: {} already exists", PATH), Status::Error);
-        std::process::exit(1);
+fn init_prompt() -> Result<InitPromptResult, Error> {
+    let is_config_file_exists = std::path::Path::new(DEFAULT_CONFIG_FILE_PATH).exists();
+    let is_ignore_file_exists = std::path::Path::new(DEFAULT_IGNORE_FILE_PATH).exists();
+
+    if is_config_file_exists && is_ignore_file_exists {
+        return Err(Error::msg(format!(
+            "{} and {} already exists",
+            DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH
+        )));
     }
 
-    std::fs::write(PATH, CONFIG)?;
+    let mut term = Term::default();
+    let mut theme = FancyTheme::default();
+    let mut p = Promptuity::new(&mut term, &mut theme);
+
+    p.term().clear()?;
+    p.with_intro("Initialize reminder-lint").begin()?;
+
+    let mut result = InitPromptResult {
+        config: None,
+        ignore: false,
+    };
+
+    let default_config = Config::default();
+    let hint_format = |hint: &str| format!("Default: {}", hint);
+
+    if !is_config_file_exists {
+        let comment_regex = p.prompt(
+            Input::new("Please enter the comment regex")
+                .with_required(false)
+                .with_default(&default_config.comment_regex)
+                .with_hint(hint_format(&default_config.comment_regex)),
+        )?;
+
+        let datetime_format = p
+            .prompt(
+                Select::new(
+                    "Please select the datetime format",
+                    vec![
+                        SelectOption::new("%Y/%m/%d", "%Y/%m/%d"),
+                        SelectOption::new("%Y/%m/%d/%/H/%M/%S", "%Y/%m/%d/%/H/%M/%S"),
+                    ],
+                )
+                .as_mut(),
+            )?
+            .to_string();
+
+        let search_directory = p.prompt(
+            Input::new("Please enter the search directory")
+                .with_required(false)
+                .with_default(&default_config.search_directory)
+                .with_hint(hint_format(&default_config.search_directory)),
+        )?;
+
+        result.config = Some(Config {
+            comment_regex,
+            datetime_format,
+            search_directory,
+        });
+    }
+
+    if !is_ignore_file_exists {
+        let ignore = p.prompt(
+            Confirm::new(format!("Create {} ?", DEFAULT_IGNORE_FILE_PATH)).with_default(true),
+        )?;
+
+        result.ignore = ignore;
+    }
+
+    p.finish()?;
+
+    Ok(result)
+}
+
+pub fn execute_init(_command: InitCommand) -> Result<(), Error> {
+    let InitPromptResult { config, ignore } = init_prompt()?;
+
+    if let Some(config) = config {
+        let yaml = serde_yaml::to_string(&config)?;
+        std::fs::write(DEFAULT_CONFIG_FILE_PATH, yaml)?;
+
+        pretty_print(
+            format!("Successfully create ./{}", DEFAULT_CONFIG_FILE_PATH),
+            Status::Success,
+        );
+    }
+
+    if ignore {
+        std::fs::write(DEFAULT_IGNORE_FILE_PATH, "")?;
+        pretty_print(
+            format!("Successfully create ./{}", DEFAULT_IGNORE_FILE_PATH),
+            Status::Success,
+        );
+    }
 
     Ok(())
 }
