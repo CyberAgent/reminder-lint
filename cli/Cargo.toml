@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 reminder-lint-core = { path = "../core" }
+anyhow = { version = "1.0.82" }
 argh = "0.1.10"

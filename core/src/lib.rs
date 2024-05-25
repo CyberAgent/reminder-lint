@@ -1,5 +1,5 @@
 mod config;
-mod error;
+pub mod error;
 mod options;
 mod remind;
 
