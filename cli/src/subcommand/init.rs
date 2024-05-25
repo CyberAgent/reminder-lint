@@ -13,6 +13,7 @@ struct InitPromptResult {
 }
 
 fn init_prompt() -> Result<InitPromptResult, Error> {
+    // TODO: Add support for finding root of the project
     let is_config_file_exists = std::path::Path::new(DEFAULT_CONFIG_FILE_PATH).exists();
     let is_ignore_file_exists = std::path::Path::new(DEFAULT_IGNORE_FILE_PATH).exists();
 
