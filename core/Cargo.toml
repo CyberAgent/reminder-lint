@@ -1,0 +1,17 @@
+[package]
+name = "reminder-lint-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4.38" }
+anyhow = { version = "1.0.82" }
+grep = { version = "0.3.1" }
+grep-searcher = { version = "0.1.13" }
+grep-regex = { version = "0.1.12" }
+ignore = { version = "0.4.1" }
+serde = { version = "1.0.130", features = ["derive"] }
+serde_derive = "^1.0"
+config = { version = "0.14.0", features = ["yaml"] }
+regex = "1.10.4"
+thiserror = "1.0.61"
