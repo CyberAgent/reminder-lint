@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    tags-ignore:
+      - "v*"
+    branches:
+      - "main"
+  pull_request:
+    types: [synchronize, opened, reopened]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo build
+      - run: cargo test
+
+  format_check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo fmt --all -- --check
+
+  pass:
+    runs-on: ubuntu-24.04
+    needs:
+      - build_and_test
+      - format_check
+    steps:
+      - run: exit 0
