@@ -1,5 +1,5 @@
-mod subcommand;
 mod print;
+mod subcommand;
 
 use subcommand::execute_subcommand;
 
