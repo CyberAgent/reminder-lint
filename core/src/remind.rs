@@ -5,6 +5,7 @@ use grep_searcher::sinks::UTF8;
 use grep_searcher::SearcherBuilder;
 use ignore::WalkBuilder;
 use regex::RegexBuilder;
+use std::collections::HashMap;
 use std::io;
 
 #[derive(Debug)]
@@ -12,6 +13,7 @@ pub struct Remind {
     pub datetime: i64,
     pub message: String,
     pub position: Position,
+    pub meta: HashMap<String, String>,
 }
 
 #[derive(Debug)]
@@ -97,6 +99,7 @@ fn line_processor<'a>(
                     file: entry_path.clone(),
                     line: line_num.into(),
                 },
+                meta: HashMap::new(),
             });
             Ok(true)
         }
