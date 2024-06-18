@@ -8,10 +8,10 @@ pub struct ReminderOptions<'a> {
 
 impl ReminderOptions<'_> {
     pub fn config_file(&self) -> &str {
-        self.config_file_path.unwrap_or(DEFAULT_IGNORE_FILE_PATH)
+        self.config_file_path.unwrap_or(DEFAULT_CONFIG_FILE_PATH)
     }
 
     pub fn ignore_file(&self) -> &str {
-        self.ignore_file_path.unwrap_or(DEFAULT_CONFIG_FILE_PATH)
+        self.ignore_file_path.unwrap_or(DEFAULT_IGNORE_FILE_PATH)
     }
 }
