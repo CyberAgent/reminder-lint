@@ -13,7 +13,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            comment_regex: String::from(r"@${assignee} remind:\W?"),
+            comment_regex: String::from(r"remind:\W?"),
             datetime_format: "%Y/%m/%d".to_string(),
             search_directory: ".".to_string(),
         }
