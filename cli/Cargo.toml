@@ -1,7 +1,10 @@
 [package]
-name = "reminder-lint-cli"
-version = "0.1.0"
+name = "reminder-lint"
+version = "0.0.1"
 edition = "2021"
+repository = "https://github.com/CyberAgent/reminder-lint"
+description = "reminder-lint command line tool."
+homepage = "https://github.com/CyberAgent/reminder-lint"
 
 [dependencies]
 reminder-lint-core = { path = "../core" }

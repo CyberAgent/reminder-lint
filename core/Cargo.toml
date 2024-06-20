@@ -1,7 +1,10 @@
 [package]
 name = "reminder-lint-core"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+repository = "https://github.com/CyberAgent/reminder-lint"
+description = "reminder-lint-core"
+homepage = "https://github.com/CyberAgent/reminder-lint"
 
 [dependencies]
 chrono = { version = "0.4.38" }
