@@ -1,17 +1,24 @@
+use ::regex::{Regex, RegexBuilder};
 use anyhow::Error;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use grep_regex::RegexMatcherBuilder;
 use grep_searcher::sinks::UTF8;
 use grep_searcher::SearcherBuilder;
 use ignore::WalkBuilder;
-use regex::RegexBuilder;
+use meta::{convert_meta_regex, extract_placeholders};
+use std::collections::HashMap;
 use std::io;
+
+use crate::config::Config;
+
+mod meta;
 
 #[derive(Debug)]
 pub struct Remind {
     pub datetime: i64,
     pub message: String,
     pub position: Position,
+    pub meta: HashMap<String, String>,
 }
 
 #[derive(Debug)]
@@ -20,13 +27,9 @@ pub struct Position {
     pub line: u64,
 }
 
-pub fn list_reminders(
-    comment_regex: &str,
-    datetime_format: &str,
-    ignore_config_file: &str,
-    search_directory: &str,
-) -> Result<Vec<Remind>, Error> {
-    let matcher = RegexMatcherBuilder::new().build(comment_regex)?;
+pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<Remind>, Error> {
+    let meta_regex = convert_meta_regex(&config.comment_regex);
+    let matcher = RegexMatcherBuilder::new().build(&meta_regex)?;
 
     let mut searcher_builder = SearcherBuilder::new();
     let mut searcher = searcher_builder
@@ -34,7 +37,7 @@ pub fn list_reminders(
         .line_number(true)
         .build();
 
-    let mut builder = WalkBuilder::new(search_directory);
+    let mut builder = WalkBuilder::new(&config.search_directory);
     let walker = builder
         .hidden(false)
         .add_custom_ignore_filename(ignore_config_file)
@@ -42,7 +45,7 @@ pub fn list_reminders(
         .parents(false)
         .build();
 
-    let datetime_regex = datetime_format_to_regex(datetime_format);
+    let datetime_regex = datetime_format_to_regex(&config.datetime_format);
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;
     let reminds = walker
         .filter_map(|e| {
@@ -54,8 +57,9 @@ pub fn list_reminders(
                 line_processor(
                     &mut reminders,
                     entry.path().display().to_string(),
-                    datetime_format.to_owned(),
+                    config.datetime_format.to_owned(),
                     &datetime_regex,
+                    &config.comment_regex,
                 ),
             );
             Some(reminders)
@@ -80,7 +84,8 @@ fn line_processor<'a>(
     reminds: &'a mut Vec<Remind>,
     entry_path: String,
     datetime_format: String,
-    datetime_regex: &'a regex::Regex,
+    datetime_regex: &'a Regex,
+    comment_regex: &'a str,
 ) -> UTF8<impl FnMut(u64, &str) -> Result<bool, io::Error> + 'a> {
     UTF8(move |line_num, line| match datetime_regex.find(line) {
         Some(m) => {
@@ -90,6 +95,9 @@ fn line_processor<'a>(
                 eprintln!("Error parsing datetime: {}", e);
                 0
             });
+            let meta: HashMap<String, String> =
+                extract_placeholders(comment_regex, line).unwrap_or_else(|| HashMap::new());
+
             reminds.push(Remind {
                 datetime,
                 message: line.trim_start().to_string(),
@@ -97,6 +105,7 @@ fn line_processor<'a>(
                     file: entry_path.clone(),
                     line: line_num.into(),
                 },
+                meta,
             });
             Ok(true)
         }
