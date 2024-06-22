@@ -47,7 +47,7 @@ pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<R
 
     let datetime_regex = datetime_format_to_regex(&config.datetime_format);
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;
-    let reminds = walker
+    let mut reminds = walker
         .filter_map(|e| {
             let mut reminders: Vec<Remind> = vec![];
             let entry = e.ok()?;
@@ -65,7 +65,9 @@ pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<R
             Some(reminders)
         })
         .flatten()
-        .collect();
+        .collect::<Vec<_>>();
+
+    reminds.sort_by(|a, b| a.datetime.cmp(&b.datetime));
 
     Ok(reminds)
 }
