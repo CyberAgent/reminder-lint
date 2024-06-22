@@ -8,6 +8,7 @@ pub struct Config {
     pub comment_regex: String,
     pub datetime_format: String,
     pub search_directory: String,
+    pub sort_by_deadline: bool,
 }
 
 impl Default for Config {
@@ -16,6 +17,7 @@ impl Default for Config {
             comment_regex: String::from(r"remind:\W?"),
             datetime_format: "%Y/%m/%d".to_string(),
             search_directory: ".".to_string(),
+            sort_by_deadline: false,
         }
     }
 }
@@ -26,6 +28,7 @@ pub fn load_config(filename: &str) -> Result<Config, ConfigError> {
         .set_default("comment_regex", default.comment_regex)?
         .set_default("datetime_format", default.datetime_format)?
         .set_default("search_directory", default.search_directory)?
+        .set_default("sort_by_deadline", default.sort_by_deadline)?
         .add_source(config::File::with_name(filename).required(false))
         .add_source(config::Environment::with_prefix(REMIND_ENV_PREFIX))
         .build()?;
