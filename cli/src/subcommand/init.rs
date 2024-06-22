@@ -60,6 +60,13 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
             )?
             .to_string();
 
+        let sort_by_deadline = p.prompt(
+            Confirm::new("Sort by deadline?")
+                .with_hint("Default: false")
+                .with_default(default_config.sort_by_deadline)
+                .as_mut(),
+        )?;
+
         let search_directory = p.prompt(
             Input::new("Please enter the search directory")
                 .with_required(false)
@@ -70,6 +77,7 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
         result.config = Some(Config {
             comment_regex,
             datetime_format,
+            sort_by_deadline,
             search_directory,
         });
     }
