@@ -21,7 +21,7 @@ body = """
 {% for commit in commits %}
     - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
         {% if commit.breaking %}[**breaking**] {% endif %}\
-        {{ commit.message | upper_first | trim }} by @{{ commit.author.name }}\
+        {{ commit.message | split(pat="\n") | first | upper_first | trim }} by @{{ commit.author.name }}\
 {% endfor %}\n\n
 """
 # template for the changelog footer
@@ -52,8 +52,8 @@ commit_preprocessors = [
 ]
 # regex for parsing and grouping commits
 commit_parsers = [
-  { message = ".*", group = "Changes" },
   { message = "^chore: Release", skip = true },
+  { message = ".*", group = "Changes" },
 ]
 # protect breaking changes from being skipped due to matching a skipping commit_parser
 protect_breaking_commits = false
