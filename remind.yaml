@@ -1,0 +1,4 @@
+comment_regex: 'remind:\W?'
+datetime_format: "%Y/%m/%d"
+search_directory: .
+sort_by_deadline: false
