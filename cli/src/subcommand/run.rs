@@ -10,11 +10,15 @@ pub fn execute_run(command: RunCommand) -> Result<(), Error> {
         .build();
 
     let reminders = reminder_lint_core::reminders(&options)?;
-    for remind in reminders.expired {
+    for remind in &reminders.expired {
         println!(
             "{}:{} {}",
             remind.position.file, remind.position.line, remind.message
         );
+    }
+
+    if !reminders.expired.is_empty() {
+        std::process::exit(1);
     }
 
     Ok(())
