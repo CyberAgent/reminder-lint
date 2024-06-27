@@ -25,7 +25,7 @@ pub struct RunCommand {
     #[argh(option, short = 'i')]
     pub ignore_file_path: Option<String>,
     /// sort by deadline (default: false)
-    #[argh(option)]
+    #[argh(switch)]
     pub sort_by_deadline: Option<bool>,
 }
 

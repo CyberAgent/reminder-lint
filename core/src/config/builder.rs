@@ -18,6 +18,7 @@ pub struct FileConfig {
     pub comment_regex: String,
     pub datetime_format: String,
     pub search_directory: String,
+    pub remind_if_no_date: bool,
 }
 
 impl Default for FileConfig {
@@ -26,6 +27,7 @@ impl Default for FileConfig {
             comment_regex: String::from(r"remind:\W?"),
             datetime_format: "%Y/%m/%d".to_string(),
             search_directory: ".".to_string(),
+            remind_if_no_date: false,
         }
     }
 }
@@ -36,6 +38,7 @@ fn load_config(filename: &str) -> Result<FileConfig, ConfigError> {
         .set_default("comment_regex", default.comment_regex)?
         .set_default("datetime_format", default.datetime_format)?
         .set_default("search_directory", default.search_directory)?
+        .set_default("remind_if_no_date", default.remind_if_no_date)?
         .add_source(config::File::with_name(filename).required(false))
         .add_source(config::Environment::with_prefix(REMIND_ENV_PREFIX))
         .build()?;
@@ -81,6 +84,7 @@ impl ConfigBuilder {
             datetime_format: file_config.datetime_format,
             search_directory: file_config.search_directory,
             ignore_file_path: ignore_file_path,
+            remind_if_no_date: file_config.remind_if_no_date,
             sort_by_deadline: self.sort_by_deadline.unwrap_or(false),
         })
     }

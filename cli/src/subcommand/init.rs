@@ -68,10 +68,16 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
                 .with_hint(hint_format(&default_config.search_directory)),
         )?;
 
+        let remind_if_no_date = p.prompt(
+            Confirm::new("Remind if no datetime in comment?")
+                .with_default(default_config.remind_if_no_date),
+        )?;
+
         result.config = Some(FileConfig {
             comment_regex,
             datetime_format,
             search_directory,
+            remind_if_no_date,
         });
     }
 

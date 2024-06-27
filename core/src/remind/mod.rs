@@ -60,6 +60,7 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
                     config.datetime_format().to_owned(),
                     &datetime_regex,
                     &config.comment_regex(),
+                    config.remind_if_no_date(),
                 ),
             );
             Some(reminders)
@@ -75,12 +76,22 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
 }
 
 fn parse_datetime(v: &str, format: &str) -> Result<i64, Error> {
-    if format.contains("%H") || format.contains("%M") || format.contains("%S") {
-        let datetime = NaiveDateTime::parse_from_str(&v, &format)?;
-        Ok(datetime.and_utc().timestamp())
-    } else {
-        let date = NaiveDate::parse_from_str(&v, &format)?;
-        Ok(date.and_time(NaiveTime::default()).and_utc().timestamp())
+    match v {
+        "" => Ok(0),
+        _ => {
+            let parsed_date =
+                if format.contains("%H") || format.contains("%M") || format.contains("%S") {
+                    NaiveDateTime::parse_from_str(v, format)?
+                        .and_utc()
+                        .timestamp()
+                } else {
+                    NaiveDate::parse_from_str(v, format)?
+                        .and_time(NaiveTime::default())
+                        .and_utc()
+                        .timestamp()
+                };
+            Ok(parsed_date)
+        }
     }
 }
 
@@ -90,30 +101,31 @@ fn line_processor<'a>(
     datetime_format: String,
     datetime_regex: &'a Regex,
     comment_regex: &'a str,
+    remind_if_no_date: bool,
 ) -> UTF8<impl FnMut(u64, &str) -> Result<bool, io::Error> + 'a> {
-    UTF8(move |line_num, line| match datetime_regex.find(line) {
-        Some(m) => {
-            let datetime_str = m.as_str();
-            let parsed = parse_datetime(&datetime_str, &datetime_format);
-            let datetime = parsed.unwrap_or_else(|e| {
-                eprintln!("Error parsing datetime: {}", e);
-                0
-            });
-            let meta: HashMap<String, String> =
-                extract_placeholders(comment_regex, line).unwrap_or_else(|| HashMap::new());
-
-            reminds.push(Remind {
-                datetime,
-                message: line.trim_start().to_string(),
-                position: Position {
-                    file: entry_path.clone(),
-                    line: line_num.into(),
-                },
-                meta,
-            });
-            Ok(true)
+    UTF8(move |line_num, line| {
+        let datetime_str = datetime_regex.find(line).map_or("", |m| m.as_str());
+        let parsed = parse_datetime(&datetime_str, &datetime_format);
+        let datetime = parsed.unwrap_or_else(|_| {
+            eprintln!("Failed to parse datetime: {}", datetime_str);
+            0
+        });
+        if datetime == 0 && !remind_if_no_date {
+            return Ok(false);
         }
-        None => Ok(false),
+        let meta: HashMap<String, String> =
+            extract_placeholders(comment_regex, line).unwrap_or_else(|| HashMap::new());
+
+        reminds.push(Remind {
+            datetime,
+            message: line.trim_start().to_string(),
+            position: Position {
+                file: entry_path.clone(),
+                line: line_num.into(),
+            },
+            meta,
+        });
+        Ok(true)
     })
 }
 

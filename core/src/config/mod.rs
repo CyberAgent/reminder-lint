@@ -9,6 +9,7 @@ pub struct Config {
     search_directory: String,
     ignore_file_path: String,
     sort_by_deadline: bool,
+    remind_if_no_date: bool,
 }
 
 impl Config {
@@ -30,5 +31,9 @@ impl Config {
 
     pub fn sort_by_deadline(&self) -> bool {
         self.sort_by_deadline
+    }
+
+    pub fn remind_if_no_date(&self) -> bool {
+        self.remind_if_no_date
     }
 }
