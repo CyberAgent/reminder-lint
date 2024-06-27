@@ -1,3 +1,4 @@
 comment_regex: remind:\W?
-datetime_format: '%Y/%m/%d %H:%M:%S'
+datetime_format: '%Y/%m/%d'
 search_directory: .
+remind_if_no_date: false
