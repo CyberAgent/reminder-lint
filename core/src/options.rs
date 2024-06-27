@@ -1,4 +1,4 @@
-pub const DEFAULT_CONFIG_FILE_PATH: &str = "remind.yaml";
+pub const DEFAULT_CONFIG_FILE_PATH: &str = "remind.yml";
 pub const DEFAULT_IGNORE_FILE_PATH: &str = ".remindignore";
 
 pub struct ReminderOptions<'a> {
@@ -56,12 +56,12 @@ mod tests {
     #[test]
     fn test_reminder_options() {
         let options = ReminderOptions::builder()
-            .config_file_path(Some("config.yaml"))
-            .ignore_file_path(Some("ignore.yaml"))
+            .config_file_path(Some("config.yml"))
+            .ignore_file_path(Some("ignore.yml"))
             .build();
 
-        assert_eq!(options.config_file(), "config.yaml");
-        assert_eq!(options.ignore_file(), "ignore.yaml");
+        assert_eq!(options.config_file(), "config.yml");
+        assert_eq!(options.ignore_file(), "ignore.yml");
     }
 
     #[test]
