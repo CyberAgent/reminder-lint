@@ -53,7 +53,7 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
                     "Please select the datetime format",
                     vec![
                         SelectOption::new("%Y/%m/%d", "%Y/%m/%d"),
-                        SelectOption::new("%Y/%m/%d/%/H/%M/%S", "%Y/%m/%d/%/H/%M/%S"),
+                        SelectOption::new("%Y/%m/%d %H:%M:%S", "%Y/%m/%d %H:%M:%S"),
                     ],
                 )
                 .as_mut(),

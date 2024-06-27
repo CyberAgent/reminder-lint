@@ -18,7 +18,7 @@ pub enum Subcommand {
 #[argh(subcommand, name = "run")]
 /// run reminder-lint with a path
 pub struct RunCommand {
-    /// path to the config file (default: ./remind.yaml)
+    /// path to the config file (default: ./remind.yml)
     #[argh(option, short = 'c')]
     pub config_file_path: Option<String>,
     /// path to the ignore file (default: ./.remindignore)
