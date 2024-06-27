@@ -27,8 +27,8 @@ pub struct Position {
     pub line: u64,
 }
 
-pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<Remind>, Error> {
-    let meta_regex = convert_meta_regex(&config.comment_regex);
+pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
+    let meta_regex = convert_meta_regex(&config.comment_regex());
     let matcher = RegexMatcherBuilder::new().build(&meta_regex)?;
 
     let mut searcher_builder = SearcherBuilder::new();
@@ -37,15 +37,15 @@ pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<R
         .line_number(true)
         .build();
 
-    let mut builder = WalkBuilder::new(&config.search_directory);
+    let mut builder = WalkBuilder::new(&config.search_directory());
     let walker = builder
         .hidden(false)
-        .add_custom_ignore_filename(ignore_config_file)
+        .add_custom_ignore_filename(&config.ignore_file_path())
         .ignore(true)
         .parents(false)
         .build();
 
-    let datetime_regex = datetime_format_to_regex(&config.datetime_format);
+    let datetime_regex = datetime_format_to_regex(&config.datetime_format());
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;
     let mut reminds = walker
         .filter_map(|e| {
@@ -57,9 +57,9 @@ pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<R
                 line_processor(
                     &mut reminders,
                     entry.path().display().to_string(),
-                    config.datetime_format.to_owned(),
+                    config.datetime_format().to_owned(),
                     &datetime_regex,
-                    &config.comment_regex,
+                    &config.comment_regex(),
                 ),
             );
             Some(reminders)
@@ -67,7 +67,7 @@ pub fn list_reminders(config: &Config, ignore_config_file: &str) -> Result<Vec<R
         .flatten()
         .collect::<Vec<_>>();
 
-    if config.sort_by_deadline {
+    if config.sort_by_deadline() {
         reminds.sort_by(|a, b| a.datetime.cmp(&b.datetime));
     }
 

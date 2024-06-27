@@ -1,15 +1,16 @@
 use anyhow::Error;
-use reminder_lint_core::ReminderOptions;
+use reminder_lint_core::config::builder::ConfigBuilder;
 
 use crate::args::RunCommand;
 
 pub fn execute_run(command: RunCommand) -> Result<(), Error> {
-    let options = ReminderOptions::builder()
-        .config_file_path(command.config_file_path.as_deref())
-        .ignore_file_path(command.ignore_file_path.as_deref())
-        .build();
+    let conf = ConfigBuilder::new()
+        .config_file_path(command.config_file_path)
+        .ignore_file_path(command.ignore_file_path)
+        .sort_by_deadline(command.sort_by_deadline)
+        .build()?;
 
-    let reminders = reminder_lint_core::reminders(&options)?;
+    let reminders = reminder_lint_core::reminders(&conf)?;
     for remind in &reminders.expired {
         println!(
             "{}:{} {}",

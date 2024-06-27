@@ -4,11 +4,12 @@ use anyhow::Error;
 use promptuity::prompts::{Confirm, Input, Select, SelectOption};
 use promptuity::themes::FancyTheme;
 use promptuity::{Promptuity, Term};
-use reminder_lint_core::config::Config;
-use reminder_lint_core::options::{DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH};
+use reminder_lint_core::config::builder::{
+    FileConfig, DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH,
+};
 
 struct InitPromptResult {
-    config: Option<Config>,
+    config: Option<FileConfig>,
     ignore: bool,
 }
 
@@ -36,7 +37,7 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
         ignore: false,
     };
 
-    let default_config = Config::default();
+    let default_config = FileConfig::default();
     let hint_format = |hint: &str| format!("Default: {}", hint);
 
     if !is_config_file_exists {
@@ -60,13 +61,6 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
             )?
             .to_string();
 
-        let sort_by_deadline = p.prompt(
-            Confirm::new("Sort by deadline?")
-                .with_hint("Default: false")
-                .with_default(default_config.sort_by_deadline)
-                .as_mut(),
-        )?;
-
         let search_directory = p.prompt(
             Input::new("Please enter the search directory")
                 .with_required(false)
@@ -74,10 +68,9 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
                 .with_hint(hint_format(&default_config.search_directory)),
         )?;
 
-        result.config = Some(Config {
+        result.config = Some(FileConfig {
             comment_regex,
             datetime_format,
-            sort_by_deadline,
             search_directory,
         });
     }

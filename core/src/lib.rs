@@ -1,13 +1,10 @@
 pub mod config;
 pub mod error;
-pub mod options;
 pub mod remind;
 
+use config::Config;
 use error::ReminderLintError;
-pub use options::ReminderOptions;
 use remind::list_reminders;
-
-use crate::config::load_config;
 
 #[derive(Debug)]
 pub struct Reminders {
@@ -15,11 +12,8 @@ pub struct Reminders {
     pub upcoming: Vec<remind::Remind>,
 }
 
-pub fn reminders(options: &ReminderOptions) -> Result<Reminders, ReminderLintError> {
-    let conf = load_config(options.config_file()).map_err(|e| ReminderLintError::from(e))?;
-
-    let reminders =
-        list_reminders(&conf, options.ignore_file()).map_err(|e| ReminderLintError::from(e))?;
+pub fn reminders(conf: &Config) -> Result<Reminders, ReminderLintError> {
+    let reminders = list_reminders(&conf).map_err(|e| ReminderLintError::from(e))?;
 
     let mut expired = Vec::new();
     let mut upcoming = Vec::new();
