@@ -4,11 +4,12 @@ use anyhow::Error;
 use promptuity::prompts::{Confirm, Input, Select, SelectOption};
 use promptuity::themes::FancyTheme;
 use promptuity::{Promptuity, Term};
-use reminder_lint_core::config::Config;
-use reminder_lint_core::options::{DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH};
+use reminder_lint_core::config::builder::{
+    FileConfig, DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH,
+};
 
 struct InitPromptResult {
-    config: Option<Config>,
+    config: Option<FileConfig>,
     ignore: bool,
 }
 
@@ -36,7 +37,7 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
         ignore: false,
     };
 
-    let default_config = Config::default();
+    let default_config = FileConfig::default();
     let hint_format = |hint: &str| format!("Default: {}", hint);
 
     if !is_config_file_exists {
@@ -72,7 +73,7 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
                 .with_default(default_config.remind_if_no_date),
         )?;
 
-        result.config = Some(Config {
+        result.config = Some(FileConfig {
             comment_regex,
             datetime_format,
             search_directory,

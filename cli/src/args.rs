@@ -24,6 +24,9 @@ pub struct RunCommand {
     /// path to the ignore file (default: ./.remindignore)
     #[argh(option, short = 'i')]
     pub ignore_file_path: Option<String>,
+    /// sort by deadline (default: false)
+    #[argh(switch)]
+    pub sort_by_deadline: Option<bool>,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
