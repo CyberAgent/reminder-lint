@@ -21,7 +21,7 @@ body = """
 {% for commit in commits %}
     - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
         {% if commit.breaking %}[**breaking**] {% endif %}\
-        {{ commit.message | split(pat="\n") | first | upper_first | trim }} by @{{ commit.author.name }}\
+        {{ commit.message | split(pat="\n") | first | upper_first | trim }} by {{ commit.author.name }}\
 {% endfor %}\n\n
 """
 # template for the changelog footer

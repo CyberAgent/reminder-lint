@@ -61,17 +61,11 @@ jobs:
       - name: Cargo release commit
         run: |
           git checkout -b release-${{ github.event.inputs.version }}
+          git add CHANGELOG.md
           cargo release commit --execute --no-confirm
           git push -u origin HEAD
           git fetch origin main
           gh pr create --title "Release ${{ github.event.inputs.version }}" --body "${{ steps.git-cliff.outputs.content }}"
-
-          while [[ ! "$(gh pr status --json state | jq '.currentBranch.state')" =~ "OPEN" ]]; do
-            echo "Waiting for PR to be ready for merge..."
-            sleep 5
-          done
-
-          gh pr merge --squash --delete-branch
           
           git tag "${{ github.event.inputs.version }}"
           git push origin "${{ github.event.inputs.version }}"
