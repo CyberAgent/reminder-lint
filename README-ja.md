@@ -1,7 +1,7 @@
 # reminder-lint
 `reminder-lint`はあらゆる言語や設定ファイルに対応した、コードリマインドツールです。  
 
-[GitHub Actionsで使用する](https://github.com/CyberAgent/reminder-lint)  
+[GitHub Actionsで使用する](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)  
 [ローカル環境にインストールする](https://github.com/CyberAgent/reminder-lint#Install)
 
 ## コンセプト
@@ -30,7 +30,7 @@ $ reminder-lint run
 
 ### Docker
 ```shell
-$ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/CyberAgent/reminder-lint:latest run
+$ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent/reminder-lint:latest run
 ```
 
 ### Binary
@@ -72,7 +72,7 @@ $ reminder-lint init
 
 または、Dockerを利用して設定ファイルを生成することができます。
 ```shell
-$ docker run --rm -it -v "$(pwd):/workspace" --workdir /workspace ghcr.io/CyberAgent/reminder-lint:latest init
+$ docker run --rm -it -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent/reminder-lint:latest init
 ```
 
 ### Syntaxのカスタマイズ
