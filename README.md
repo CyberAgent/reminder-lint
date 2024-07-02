@@ -30,7 +30,7 @@ $ reminder-lint run
 
 ### Docker
 ```shell
-$ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/CyberAgent/reminder-lint:latest run
+$ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent/reminder-lint:latest run
 ```
 
 ### Binary
@@ -73,7 +73,7 @@ $ reminder-lint init
 
 Or, you can use Docker to generate configuration files.
 ```shell
-$ docker run --rm -it -v "$(pwd):/workspace" --workdir /workspace ghcr.io/CyberAgent/reminder-lint:latest init
+$ docker run --rm -it -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent/reminder-lint:latest init
 ```
 
 ### Syntax Customization
