@@ -108,7 +108,10 @@ pub fn execute_init(_command: InitCommand) -> Result<(), Error> {
     }
 
     if ignore {
-        std::fs::write(DEFAULT_IGNORE_FILE_PATH, "")?;
+        std::fs::write(
+            DEFAULT_IGNORE_FILE_PATH,
+            format!("{}\n", DEFAULT_CONFIG_FILE_PATH),
+        )?;
         pretty_print(
             format!("Successfully create ./{}", DEFAULT_IGNORE_FILE_PATH),
             Status::Success,

@@ -67,6 +67,8 @@ Some teams may want to change the notation of reminder comments or specify the r
 `reminder-lint` supports configuration files, and you can customize these notations and use them.
 When you execute `init`, `remind.yml` file and `.remindignore` file are created.
 
+By default, `.remindignore` contains `remind.yml`.
+
 ```shell
 $ reminder-lint init
 ```
