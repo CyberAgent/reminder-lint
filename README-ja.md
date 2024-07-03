@@ -66,6 +66,8 @@ jobs:
 `reminder-lint`は設定ファイルをサポートしており、これらの記法をカスタマイズして利用することが可能です。
 `init`を実行すると、`remind.yml`ファイルや`.remindignore`ファイルが作成されます。
 
+このときデフォルトで、 `.remindignore` に `remind.yml` が記述されています。
+
 ```shell
 $ reminder-lint init
 ```
