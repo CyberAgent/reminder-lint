@@ -45,6 +45,9 @@ pub struct ListCommand {
     /// path to the ignore file (default: ./.remindignore)
     #[argh(option, short = 'i')]
     pub ignore_file_path: Option<String>,
+    /// output in json format
+    #[argh(switch)]
+    pub json: bool,
 }
 
 impl Args {

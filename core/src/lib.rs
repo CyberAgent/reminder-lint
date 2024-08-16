@@ -5,8 +5,9 @@ pub mod remind;
 use config::Config;
 use error::ReminderLintError;
 use remind::list_reminders;
+use serde::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Reminders {
     pub expired: Vec<remind::Remind>,
     pub upcoming: Vec<remind::Remind>,
