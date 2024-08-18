@@ -8,7 +8,7 @@ pub fn execute_list(command: ListCommand) -> Result<(), Error> {
         .ignore_file_path(command.ignore_file_path)
         .build()?;
 
-    let reminders = reminder_lint_core::reminders(&conf)?;
+    let reminders = reminder_lint_core::reminders(&conf, command.search_path)?;
 
     for remind in &reminders.expired {
         println!(

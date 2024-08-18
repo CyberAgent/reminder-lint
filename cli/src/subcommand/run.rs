@@ -10,7 +10,8 @@ pub fn execute_run(command: RunCommand) -> Result<(), Error> {
         .sort_by_deadline(command.sort_by_deadline)
         .build()?;
 
-    let reminders = reminder_lint_core::reminders(&conf)?;
+    let reminders = reminder_lint_core::reminders(&conf, command.search_path)?;
+
     for remind in &reminders.expired {
         println!(
             "{}:{} {}",

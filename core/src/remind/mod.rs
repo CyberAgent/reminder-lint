@@ -27,7 +27,7 @@ pub struct Position {
     pub line: u64,
 }
 
-pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
+pub fn list_reminders(config: &Config, target: Option<String>) -> Result<Vec<Remind>, Error> {
     let meta_regex = convert_meta_regex(&config.comment_regex());
     let matcher = RegexMatcherBuilder::new().build(&meta_regex)?;
 
@@ -37,7 +37,10 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
         .line_number(true)
         .build();
 
-    let mut builder = WalkBuilder::new(&config.search_directory());
+    let mut builder = match target {
+        Some(t) => WalkBuilder::new(&t),
+        None => WalkBuilder::new(config.search_directory()),
+    };
     let walker = builder
         .hidden(false)
         .add_custom_ignore_filename(&config.ignore_file_path())

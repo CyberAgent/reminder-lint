@@ -28,6 +28,9 @@ pub struct RunCommand {
     /// sort by deadline (default: false)
     #[argh(switch)]
     pub sort_by_deadline: Option<bool>,
+    // search path (default: search directry written in config file)
+    #[argh(positional)]
+    pub search_path: Option<String>,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -45,6 +48,9 @@ pub struct ListCommand {
     /// path to the ignore file (default: ./.remindignore)
     #[argh(option, short = 'i')]
     pub ignore_file_path: Option<String>,
+    // search path (default: search directry written in config file)
+    #[argh(positional)]
+    pub search_path: Option<String>,
 }
 
 impl Args {
