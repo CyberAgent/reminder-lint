@@ -144,4 +144,13 @@ mod tests {
 
         assert_eq!(extract_placeholders(pattern, text), expected);
     }
+
+    #[test]
+    fn test_native_name_extract_partial_placeholders() {
+        let pattern = r"(@(?P<assignee>.+) )?remind: (?P<task>.*)\W?";
+        let text = "remind: TODO";
+        let expected = Some(HashMap::from([("task".to_string(), "TODO".to_string())]));
+
+        assert_eq!(extract_placeholders(pattern, text), expected);
+    }
 }
