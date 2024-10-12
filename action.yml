@@ -1,14 +1,14 @@
-name: 'reminder-lint'
-description: 'Custom action for reminder-lint cli.'
+name: "reminder-lint"
+description: "Custom action for reminder-lint cli."
 
 inputs:
   args:
     description: Arguments to pass to the reminder-lint.
     required: false
-    default: 'run'
+    default: "run"
 
 runs:
   using: docker
-  image: docker://ghcr.io/cyberagent/reminder-lint:latest
+  image: ./actions/Dockerfile
   args:
     - ${{ inputs.args }}
