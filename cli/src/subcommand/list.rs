@@ -10,6 +10,11 @@ pub fn execute_list(command: ListCommand) -> Result<(), Error> {
 
     let reminders = reminder_lint_core::reminders(&conf)?;
 
+    if command.json {
+        println!("{}", serde_json::to_string(&reminders)?);
+        return Ok(());
+    }
+
     for remind in &reminders.expired {
         println!(
             "{}:{} {}",

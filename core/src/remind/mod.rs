@@ -6,6 +6,7 @@ use grep_searcher::sinks::UTF8;
 use grep_searcher::SearcherBuilder;
 use ignore::WalkBuilder;
 use meta::{convert_meta_regex, extract_placeholders};
+use serde::Serialize;
 use std::collections::HashMap;
 use std::io;
 
@@ -13,7 +14,7 @@ use crate::config::Config;
 
 mod meta;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Remind {
     pub datetime: i64,
     pub message: String,
@@ -21,7 +22,7 @@ pub struct Remind {
     pub meta: HashMap<String, String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Position {
     pub file: String,
     pub line: u64,
