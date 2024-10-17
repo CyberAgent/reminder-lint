@@ -7,8 +7,12 @@ inputs:
     required: false
     default: 'run'
 
+outputs:
+  stdout:
+    description: 'The stdout of reminder-lint command.'
+
 runs:
   using: docker
-  image: docker://ghcr.io/cyberagent/reminder-lint:latest
+  image: ./actions/Dockerfile
   args:
     - ${{ inputs.args }}
