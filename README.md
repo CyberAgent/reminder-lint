@@ -61,6 +61,57 @@ jobs:
           args: run
 ```
 
+If you want to notify the result of `reminder-lint` to Slack, you can use the following action.
+```yml
+name: reminder-lint
+
+on:
+  schedule:
+    - cron: '0 1 * * 1,2,3,4,5'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: reminder-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run
+        id: run
+        uses: CyberAgent/reminder-lint@main
+        with:
+          args: run
+          
+      - name: Notify
+        if: ${{ steps.run.outputs.stdout != '' }}
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Actions: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ${{ toJSON(format('```{0}```', steps.run.outputs.stdout)) }}
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+```
+
 ## Customize
 Some teams may want to change the notation of reminder comments or specify the reminder timing in more detail.
 
