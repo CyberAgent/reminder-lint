@@ -60,6 +60,57 @@ jobs:
           args: run
 ```
 
+もし、reminder-lintの実行結果をSlackに通知したい場合、以下のようにワークフローを設定できます。
+```yml
+name: reminder-lint
+
+on:
+  schedule:
+    - cron: '0 1 * * 1,2,3,4,5'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: reminder-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run
+        id: run
+        uses: CyberAgent/reminder-lint@main
+        with:
+          args: run
+          
+      - name: Notify
+        if: ${{ steps.run.outputs.stdout != '' }}
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Actions: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ${{ toJSON(format('```{0}```', steps.run.outputs.stdout)) }}
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+```
+
 ## カスタマイズ
 チームによっては、リマインドコメントの記法を変更したり、時刻単位でのリマインドタイミングを指定したいケースが想定されます。  
 
