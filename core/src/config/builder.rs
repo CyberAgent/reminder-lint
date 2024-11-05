@@ -46,6 +46,12 @@ fn load_config(filename: &str) -> Result<FileConfig, ConfigError> {
     Ok(conf)
 }
 
+impl Default for ConfigBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ConfigBuilder {
     pub fn new() -> Self {
         Self {
@@ -83,7 +89,7 @@ impl ConfigBuilder {
             comment_regex: file_config.comment_regex,
             datetime_format: file_config.datetime_format,
             search_directory: file_config.search_directory,
-            ignore_file_path: ignore_file_path,
+            ignore_file_path,
             remind_if_no_date: file_config.remind_if_no_date,
             sort_by_deadline: self.sort_by_deadline.unwrap_or(false),
         })
