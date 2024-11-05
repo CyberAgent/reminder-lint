@@ -14,7 +14,7 @@ pub struct Reminders {
 }
 
 pub fn reminders(conf: &Config) -> Result<Reminders, ReminderLintError> {
-    let reminders = list_reminders(&conf).map_err(|e| ReminderLintError::from(e))?;
+    let reminders = list_reminders(conf).map_err(ReminderLintError::from)?;
 
     let mut expired = Vec::new();
     let mut upcoming = Vec::new();

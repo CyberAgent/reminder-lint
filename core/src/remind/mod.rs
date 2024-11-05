@@ -29,7 +29,7 @@ pub struct Position {
 }
 
 pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
-    let meta_regex = convert_meta_regex(&config.comment_regex());
+    let meta_regex = convert_meta_regex(config.comment_regex());
     let matcher = RegexMatcherBuilder::new().build(&meta_regex)?;
 
     let mut searcher_builder = SearcherBuilder::new();
@@ -38,15 +38,15 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
         .line_number(true)
         .build();
 
-    let mut builder = WalkBuilder::new(&config.search_directory());
+    let mut builder = WalkBuilder::new(config.search_directory());
     let walker = builder
         .hidden(false)
-        .add_custom_ignore_filename(&config.ignore_file_path())
+        .add_custom_ignore_filename(config.ignore_file_path())
         .ignore(true)
         .parents(false)
         .build();
 
-    let datetime_regex = datetime_format_to_regex(&config.datetime_format());
+    let datetime_regex = datetime_format_to_regex(config.datetime_format());
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;
     let mut reminds = walker
         .filter_map(|e| {
@@ -60,7 +60,7 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
                     entry.path().display().to_string(),
                     config.datetime_format().to_owned(),
                     &datetime_regex,
-                    &config.comment_regex(),
+                    config.comment_regex(),
                     config.remind_if_no_date(),
                 ),
             );
@@ -106,7 +106,7 @@ fn line_processor<'a>(
 ) -> UTF8<impl FnMut(u64, &str) -> Result<bool, io::Error> + 'a> {
     UTF8(move |line_num, line| {
         let datetime_str = datetime_regex.find(line).map_or("", |m| m.as_str());
-        let parsed = parse_datetime(&datetime_str, &datetime_format);
+        let parsed = parse_datetime(datetime_str, &datetime_format);
         let datetime = parsed.unwrap_or_else(|_| {
             eprintln!("Failed to parse datetime: {}", datetime_str);
             0
@@ -115,14 +115,14 @@ fn line_processor<'a>(
             return Ok(false);
         }
         let meta: HashMap<String, String> =
-            extract_placeholders(comment_regex, line).unwrap_or_else(|| HashMap::new());
+            extract_placeholders(comment_regex, line).unwrap_or_default();
 
         reminds.push(Remind {
             datetime,
             message: line.trim_start().to_string(),
             position: Position {
                 file: entry_path.clone(),
-                line: line_num.into(),
+                line: line_num,
             },
             meta,
         });
