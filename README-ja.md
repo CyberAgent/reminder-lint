@@ -86,6 +86,8 @@ jobs:
         if: ${{ steps.run.outputs.stdout != '' }}
         uses: slackapi/slack-github-action@v1.27.0
         with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
           payload: |
             {
               "blocks": [
@@ -105,10 +107,6 @@ jobs:
                 }
               ]
             }
-        env:
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
 ```
 
 ## カスタマイズ
