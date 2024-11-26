@@ -84,7 +84,7 @@ jobs:
           
       - name: Notify
         if: ${{ steps.run.outputs.stdout != '' }}
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.0.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
