@@ -38,7 +38,7 @@ jobs:
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.79
+          toolchain: 1.84
 
       - name: Install cargo-release
         run: cargo install cargo-release --locked
