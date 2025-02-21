@@ -124,11 +124,11 @@ jobs:
 
       - name: Install cargo-dist
         shell: bash
-        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.16.0/cargo-dist-installer.sh | sh"
+        run: cargo install cargo-dist --locked
 
       - id: plan
         run: |
-          cargo dist plan --output-format=json > plan-dist-manifest.json
+          dist plan --output-format=json > plan-dist-manifest.json
           cat plan-dist-manifest.json
           echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
 
@@ -165,7 +165,7 @@ jobs:
           cache-provider: ${{ matrix.cache_provider }}
 
       - name: Install cargo-dist
-        run: ${{ matrix.install_dist }}
+        run: cargo install cargo-dist --locked
 
       - name: Fetch local artifacts
         uses: actions/download-artifact@v4
@@ -180,7 +180,7 @@ jobs:
 
       - name: Build artifacts
         run: |
-          cargo dist build ${{ needs.tag-version.outputs.tag-flag }} --print=linkage --output-format=json ${{ matrix.dist_args }} > dist-manifest.json
+          dist build ${{ needs.tag-version.outputs.tag-flag }} --print=linkage --output-format=json ${{ matrix.dist_args }} > dist-manifest.json
 
       - id: cargo-dist
         name: Post-build
@@ -215,7 +215,7 @@ jobs:
 
       - name: Install cargo-dist
         shell: bash
-        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.16.0/cargo-dist-installer.sh | sh"
+        run: cargo install cargo-dist --locked
 
       - name: Fetch local artifacts
         uses: actions/download-artifact@v4
@@ -227,8 +227,8 @@ jobs:
       - id: cargo-dist
         shell: bash
         run: |
-          cargo dist build ${{ needs.tag-version.outputs.tag-flag }} --output-format=json "--artifacts=global" > dist-manifest.json
-          echo "cargo dist ran successfully"
+          dist build ${{ needs.tag-version.outputs.tag-flag }} --output-format=json "--artifacts=global" > dist-manifest.json
+          echo "dist ran successfully"
 
           # Parse out what we just built and upload it to scratch storage
           echo "paths<<EOF" >> "$GITHUB_OUTPUT"
@@ -261,7 +261,7 @@ jobs:
           ref: ${{ github.event.inputs.version }}
 
       - name: Install cargo-dist
-        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.16.0/cargo-dist-installer.sh | sh"
+        run: cargo install cargo-dist --locked
 
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
@@ -273,7 +273,7 @@ jobs:
       - id: host
         shell: bash
         run: |
-          cargo dist host ${{ needs.tag-version.outputs.tag-flag }} --steps=upload --steps=release --output-format=json > dist-manifest.json
+          dist host ${{ needs.tag-version.outputs.tag-flag }} --steps=upload --steps=release --output-format=json > dist-manifest.json
           echo "artifacts uploaded and released successfully"
           cat dist-manifest.json
           echo "manifest=$(jq -c "." dist-manifest.json)" >> "$GITHUB_OUTPUT"
