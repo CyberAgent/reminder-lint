@@ -39,23 +39,6 @@ $ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent
 
 ## GitHub Actions
 GitHub Actions上で`reminder-lint`を利用することができます。
-
-### Inputs
-| Name | Description | Required | Default |
-| --- | --- | --- | --- |
-| `command` | サブコマンド (`run`, `init`, `list`). <br/> `args` が指定された場合、無視されます | No | `run` |
-| `config-file-path` | 設定ファイルのパス <br/> `args` が指定された場合、無視されます | No | `./remind.yml` |
-| `ignore-file-path` | 無視指定ファイルのパス <br/> `args` が指定された場合、無視されます | No | `./.remindignore` |
-| `sort-by-deadline` | `deadline` でソートするか <br/> `args` が指定された場合、無視されます | No | `false` |
-| `args` | `reminder-lint` へ渡す引数の完全な指定 (サブコマンドまで含む) <br/> 指定した場合、他の指定は全て無視されます | No | ` ` |
-
-### Outputs
-| Name | Description |
-| --- | --- |
-| stdout | The stdout of reminder-lint command. |
-
-### Examples
-minimum
 ```yml
 name: reminder-lint
 
@@ -68,53 +51,13 @@ jobs:
     runs-on: ubuntu-latest
     name: reminder-lint
     steps:
-      - uses: actions/checkout@v4
-      - uses: CyberAgent/reminder-lint@main
-```
+      - name: Checkout
+        uses: actions/checkout@v4
 
-custom
-```yml
-name: reminder-lint
-
-on:
-  schedule:
-    - cron: '0 1 * * 1,2,3,4,5'
-
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    name: reminder-lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run linter
-          uses: CyberAgent/reminder-lint@main
-          with:
-            command: run
-            config-file-path: custom-config.yml
-            sort-by-deadline: true
-```
-
-use `args`
-
-```yml
-name: reminder-lint
-
-on:
-  schedule:
-    - cron: '0 1 * * 1,2,3,4,5'
-
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    name: reminder-lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run linter
-          uses: CyberAgent/reminder-lint@main
-          with:
-            args: run -c custom-config.yml --sort-by-deadline
+      - name: Run
+        uses: CyberAgent/reminder-lint@main
+        with:
+          args: run
 ```
 
 もし、reminder-lintの実行結果をSlackに通知したい場合、以下のようにワークフローを設定できます。
@@ -130,13 +73,16 @@ jobs:
     runs-on: ubuntu-latest
     name: reminder-lint
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Run linter
+      - name: Run
         id: run
         uses: CyberAgent/reminder-lint@main
+        with:
+          args: run
           
-      - name: Notify to Slack
+      - name: Notify
         if: ${{ steps.run.outputs.stdout != '' }}
         uses: slackapi/slack-github-action@v2.0.0
         with:

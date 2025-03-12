@@ -40,22 +40,6 @@ Pre-built binaries are available on the [releases page](https://github.com/Cyber
 ## GitHub Actions
 You can use `reminder-lint` on GitHub Actions.
 
-### Inputs
-| Name | Description | Required | Default |
-| --- | --- | --- | --- |
-| `command` | Subcommand (`run`, `init`, `list`). <br/> Ignored if `args` is specified | No | `run` |
-| `config-file-path` | Path to the configuration file <br/> Ignored if `args` is specified | No | `./remind.yml` |
-| `ignore-file-path` | Path to the ignore file <br/> Ignored if `args` is specified | No | `./.remindignore` |
-| `sort-by-deadline` | Sort by `deadline` <br/> Ignored if `args` is specified | No | `false` |
-| `args` | Complete arguments to pass to `reminder-lint` (including subcommand) <br/> If specified, all other inputs are ignored | No | ` ` |
-
-### Outputs
-| Name | Description |
-| --- | --- |
-| stdout | The stdout of reminder-lint command. |
-
-### Examples
-minimum
 ```yml
 name: reminder-lint
 
@@ -68,52 +52,13 @@ jobs:
     runs-on: ubuntu-latest
     name: reminder-lint
     steps:
-      - uses: actions/checkout@v4
-      - uses: CyberAgent/reminder-lint@main
-```
+      - name: Checkout
+        uses: actions/checkout@v4
 
-custom
-```yml
-name: reminder-lint
-
-on:
-  schedule:
-    - cron: '0 1 * * 1,2,3,4,5'
-
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    name: reminder-lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run linter
-          uses: CyberAgent/reminder-lint@main
-          with:
-            command: run
-            config-file-path: custom-config.yml
-            sort-by-deadline: true
-```
-
-use `args`
-```yml
-name: reminder-lint
-
-on:
-  schedule:
-    - cron: '0 1 * * 1,2,3,4,5'
-
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    name: reminder-lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run linter
-          uses: CyberAgent/reminder-lint@main
-          with:
-            args: run -c custom-config.yml --sort-by-deadline
+      - name: Run
+        uses: CyberAgent/reminder-lint@main
+        with:
+          args: run
 ```
 
 If you want to notify the result of `reminder-lint` to Slack, you can use the following action.
