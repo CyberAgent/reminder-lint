@@ -2,26 +2,10 @@ name: 'reminder-lint'
 description: 'Custom action for reminder-lint cli.'
 
 inputs:
-  command:
-    description: 'Command to run (run, version, etc). Ignored if args is specified.'
+  args:
+    description: Arguments to pass to the reminder-lint.
     required: false
     default: 'run'
-  config-file-path:
-    description: 'Path to the config file. Ignored if args is specified.'
-    required: false
-    default: './remind.yml'
-  ignore-file-path:
-    description: 'Path to the ignore file. Ignored if args is specified.'
-    required: false
-    default: './.remindignore'
-  sort-by-deadline:
-    description: 'Sort reminders by deadline. Ignored if args is specified.'
-    required: false
-    default: 'false'
-  args:
-    description: 'Full command arguments to pass to reminder-lint. If specified, all other inputs will be ignored.'
-    required: false
-    default: ''
 
 outputs:
   stdout:
@@ -31,7 +15,4 @@ runs:
   using: docker
   image: ./actions/Dockerfile
   args:
-    - ${{ inputs.args != '' && inputs.args || inputs.command }}
-    - ${{ inputs.args != '' && '' || inputs.config-file-path != '' && format('-c {0}', inputs.config-file-path) || '' }}
-    - ${{ inputs.args != '' && '' || inputs.ignore-file-path != '' && format('-i {0}', inputs.ignore-file-path) || '' }}
-    - ${{ inputs.args != '' && '' || inputs.sort-by-deadline == 'true' && '--sort-by-deadline' || '' }}
+    - ${{ inputs.args }}
