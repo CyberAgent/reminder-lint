@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run
-        uses: CyberAgent/reminder-lint@main
+        uses: CyberAgent/reminder-lint@0.1.2
         with:
           args: run
 ```
@@ -79,7 +79,7 @@ jobs:
 
       - name: Run
         id: run
-        uses: CyberAgent/reminder-lint@main
+        uses: CyberAgent/reminder-lint@0.1.2
         with:
           args: run
           
