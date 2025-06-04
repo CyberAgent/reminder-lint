@@ -12,7 +12,7 @@ use std::io;
 
 use crate::config::Config;
 
-mod meta;
+pub(crate) mod meta;
 
 #[derive(Debug, Serialize)]
 pub struct Remind {
@@ -46,28 +46,35 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
         .parents(false)
         .build();
 
-    let datetime_regex = datetime_format_to_regex(config.datetime_format());
+    let datetime = if config.trigger().datetime.is_empty() {
+        config.datetime_format().to_owned()
+    } else {
+        config.trigger().datetime.clone()
+    };
+    let datetime_regex = datetime_format_to_regex(&datetime);
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;
+
     let mut reminds = walker
         .filter_map(|e| {
             let mut reminders: Vec<Remind> = vec![];
             let entry = e.ok()?;
-            let _result = searcher.search_path(
-                &matcher,
-                entry.path(),
-                line_processor(
-                    &mut reminders,
-                    entry.path().display().to_string(),
-                    config.datetime_format().to_owned(),
-                    &datetime_regex,
-                    config.comment_regex(),
-                    config.remind_if_no_date(),
-                ),
+            let path = line_processor(
+                &mut reminders,
+                entry.path().display().to_string(),
+                datetime.clone(),
+                &datetime_regex,
+                config.comment_regex(),
             );
+
+            let _result = searcher.search_path(&matcher, entry.path(), path);
             Some(reminders)
         })
         .flatten()
         .collect::<Vec<_>>();
+
+    if !config.remind_if_no_date() {
+        reminds.retain(|r| r.datetime != 0);
+    }
 
     if config.sort_by_deadline() {
         reminds.sort_by(|a, b| a.datetime.cmp(&b.datetime));
@@ -102,7 +109,6 @@ fn line_processor<'a>(
     datetime_format: String,
     datetime_regex: &'a Regex,
     comment_regex: &'a str,
-    remind_if_no_date: bool,
 ) -> UTF8<impl FnMut(u64, &str) -> Result<bool, io::Error> + 'a> {
     UTF8(move |line_num, line| {
         let datetime_str = datetime_regex.find(line).map_or("", |m| m.as_str());
@@ -111,11 +117,8 @@ fn line_processor<'a>(
             eprintln!("Failed to parse datetime: {}", datetime_str);
             0
         });
-        if datetime == 0 && !remind_if_no_date {
-            return Ok(false);
-        }
-        let meta: HashMap<String, String> =
-            extract_placeholders(comment_regex, line).unwrap_or_default();
+
+        let meta = extract_placeholders(comment_regex, line).unwrap_or_default();
 
         reminds.push(Remind {
             datetime,
@@ -130,7 +133,7 @@ fn line_processor<'a>(
     })
 }
 
-fn datetime_format_to_regex(format: &str) -> String {
+pub fn datetime_format_to_regex(format: &str) -> String {
     let mut re = format.to_string();
     let replacements = vec![
         ("%Y", r"\d{4}"),

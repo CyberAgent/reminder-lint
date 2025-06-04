@@ -11,14 +11,20 @@ pub fn execute_run(command: RunCommand) -> Result<(), Error> {
         .build()?;
 
     let reminders = reminder_lint_core::reminders(&conf)?;
-    for remind in &reminders.expired {
+    let expired = reminders
+        .reminds
+        .iter()
+        .filter(|remind| remind.datetime < chrono::Local::now().timestamp())
+        .collect::<Vec<_>>();
+
+    for remind in &expired {
         println!(
             "{}:{} {}",
             remind.position.file, remind.position.line, remind.message
         );
     }
 
-    if !reminders.expired.is_empty() {
+    if !expired.is_empty() {
         std::process::exit(1);
     }
 
