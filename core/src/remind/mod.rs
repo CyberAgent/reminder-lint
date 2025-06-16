@@ -46,10 +46,10 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
         .parents(false)
         .build();
 
-    let datetime = if config.trigger().datetime.is_empty() {
+    let datetime = if config.triggers().datetime.is_empty() {
         config.datetime_format().to_owned()
     } else {
-        config.trigger().datetime.clone()
+        config.triggers().datetime.clone()
     };
     let datetime_regex = datetime_format_to_regex(&datetime);
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;

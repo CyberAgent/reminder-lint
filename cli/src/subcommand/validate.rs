@@ -13,12 +13,12 @@ struct InvalidRemind {
     pub unmatched: HashMap<String, ValidateItem>,
 }
 
-pub fn execute_validate(command: ValidateCommand) -> Result<(), Error> {
+pub fn execute_validates(command: ValidateCommand) -> Result<(), Error> {
     let conf = ConfigBuilder::new()
         .config_file_path(command.config_file_path)
         .ignore_file_path(command.ignore_file_path)
         .sort_by_deadline(command.sort_by_deadline)
-        .remind_if_no_date(Some(true)) // Always validate even if no date
+        .remind_if_no_date(Some(true)) // Always validates even if no date
         .build()?;
 
     let reminders = reminder_lint_core::reminders(&conf)?;
@@ -26,11 +26,11 @@ pub fn execute_validate(command: ValidateCommand) -> Result<(), Error> {
 
     for remind in reminders.reminds {
         let mut unmatched = HashMap::new();
-        for (name, validate) in conf.validate() {
-            let reg_str = datetime_format_to_regex(&validate.format);
+        for (name, validates) in conf.validates() {
+            let reg_str = datetime_format_to_regex(&validates.format);
             let format_regex = Regex::new(&reg_str).unwrap();
             if !format_regex.is_match(&remind.message) {
-                unmatched.insert(name.clone(), validate.clone());
+                unmatched.insert(name.clone(), validates.clone());
             }
         }
 

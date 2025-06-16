@@ -1,4 +1,4 @@
-use validate::execute_validate;
+use validate::execute_validates;
 
 use crate::{
     args::Subcommand,
@@ -17,7 +17,7 @@ pub fn execute_subcommand(subcommand: Subcommand) {
         Subcommand::Run(command) => execute_run(command),
         Subcommand::Init(command) => execute_init(command),
         Subcommand::List(command) => execute_list(command),
-        Subcommand::Validate(command) => execute_validate(command),
+        Subcommand::Validate(command) => execute_validates(command),
     };
 
     if let Err(e) = result {

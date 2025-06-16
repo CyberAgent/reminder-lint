@@ -23,14 +23,14 @@ pub struct ValidateItem {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
-pub struct TriggerItem {
+pub struct Triggers {
     #[serde(rename = "datetime")]
     pub datetime: String,
 }
 
-impl Default for TriggerItem {
+impl Default for Triggers {
     fn default() -> Self {
-        TriggerItem {
+        Triggers {
             datetime: "".to_string(),
         }
     }
@@ -44,8 +44,8 @@ pub struct FileConfig {
     pub search_directory: String,
     pub remind_if_no_date: bool,
     #[serde(default)]
-    pub trigger: TriggerItem,
-    pub validate: HashMap<String, ValidateItem>,
+    pub triggers: Triggers,
+    pub validates: HashMap<String, ValidateItem>,
 }
 
 impl Default for FileConfig {
@@ -55,10 +55,10 @@ impl Default for FileConfig {
             datetime_format: "".to_string(),
             search_directory: ".".to_string(),
             remind_if_no_date: false,
-            trigger: TriggerItem {
+            triggers: Triggers {
                 datetime: "datetime".to_string(),
             },
-            validate: HashMap::new(),
+            validates: HashMap::new(),
         }
     }
 }
@@ -79,9 +79,9 @@ fn load_config(filename: &str) -> Result<FileConfig, ConfigError> {
         .set_default("search_directory", default.search_directory)?
         .set_default("remind_if_no_date", default.remind_if_no_date)?
         .set_default(
-            "validate",
+            "validates",
             default
-                .validate
+                .validates
                 .into_iter()
                 .map(|(k, v)| (k, Value::from(v)))
                 .collect::<HashMap<String, Value>>(),
@@ -141,20 +141,20 @@ impl ConfigBuilder {
             .remind_if_no_date
             .unwrap_or(file_config.remind_if_no_date);
 
-        if !file_config.validate.is_empty() && contains_meta_matcher(&file_config.comment_regex) {
+        if !file_config.validates.is_empty() && contains_meta_matcher(&file_config.comment_regex) {
             return Err(ConfigError::Message(
                 "Validation and meta matcher features cannot be used together".to_string(),
             ));
         }
 
-        if file_config.datetime_format.is_empty() && file_config.trigger.datetime.is_empty() {
+        if file_config.datetime_format.is_empty() && file_config.triggers.datetime.is_empty() {
             return Err(ConfigError::Message(
-                "trigger.datetime must be set".to_string(),
+                "triggers.datetime must be set".to_string(),
             ));
         }
 
         if !file_config.datetime_format.is_empty() {
-            println!("\x1b[33m[DEPRECATED]\x1b[0m datetime_format is deprecated, please use trigger.datetime instead.");
+            println!("\x1b[33m[DEPRECATED]\x1b[0m datetime_format is deprecated, please use triggers.datetime instead.");
         }
 
         Ok(Config {
@@ -162,9 +162,9 @@ impl ConfigBuilder {
             datetime_format: file_config.datetime_format,
             search_directory: file_config.search_directory,
             remind_if_no_date,
-            validate: file_config.validate,
+            validates: file_config.validates,
             ignore_file_path,
-            trigger: file_config.trigger,
+            triggers: file_config.triggers,
             sort_by_deadline: self.sort_by_deadline.unwrap_or(false),
         })
     }
