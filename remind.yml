@@ -1,8 +1,7 @@
 comment_regex: remind:\W?
+datetime_format: "%Y/%m/%d"
 search_directory: .
 remind_if_no_date: false
-triggers:
-  datetime: "%Y/%m/%d"
 validates:
   datetime:
     format: "%Y/%m/%d"

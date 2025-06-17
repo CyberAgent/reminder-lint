@@ -22,29 +22,11 @@ pub struct ValidateItem {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-#[serde(deny_unknown_fields)]
-pub struct Triggers {
-    #[serde(rename = "datetime")]
-    pub datetime: String,
-}
-
-impl Default for Triggers {
-    fn default() -> Self {
-        Triggers {
-            datetime: "".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FileConfig {
     pub comment_regex: String,
-    #[serde(skip_serializing)]
     pub datetime_format: String,
     pub search_directory: String,
     pub remind_if_no_date: bool,
-    #[serde(default)]
-    pub triggers: Triggers,
     pub validates: HashMap<String, ValidateItem>,
 }
 
@@ -52,12 +34,9 @@ impl Default for FileConfig {
     fn default() -> Self {
         Self {
             comment_regex: String::from(r"remind:\W?"),
-            datetime_format: "".to_string(),
+            datetime_format: "%Y/%m/%d".to_string(),
             search_directory: ".".to_string(),
             remind_if_no_date: false,
-            triggers: Triggers {
-                datetime: "datetime".to_string(),
-            },
             validates: HashMap::new(),
         }
     }
@@ -147,16 +126,6 @@ impl ConfigBuilder {
             ));
         }
 
-        if file_config.datetime_format.is_empty() && file_config.triggers.datetime.is_empty() {
-            return Err(ConfigError::Message(
-                "triggers.datetime must be set".to_string(),
-            ));
-        }
-
-        if !file_config.datetime_format.is_empty() {
-            println!("\x1b[33m[DEPRECATED]\x1b[0m datetime_format is deprecated, please use triggers.datetime instead.");
-        }
-
         Ok(Config {
             comment_regex: file_config.comment_regex,
             datetime_format: file_config.datetime_format,
@@ -164,7 +133,6 @@ impl ConfigBuilder {
             remind_if_no_date,
             validates: file_config.validates,
             ignore_file_path,
-            triggers: file_config.triggers,
             sort_by_deadline: self.sort_by_deadline.unwrap_or(false),
         })
     }

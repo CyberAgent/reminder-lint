@@ -46,11 +46,7 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
         .parents(false)
         .build();
 
-    let datetime = if config.triggers().datetime.is_empty() {
-        config.datetime_format().to_owned()
-    } else {
-        config.triggers().datetime.clone()
-    };
+    let datetime = config.datetime_format().to_owned();
     let datetime_regex = datetime_format_to_regex(&datetime);
     let datetime_regex = RegexBuilder::new(&datetime_regex).build()?;
 

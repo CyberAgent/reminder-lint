@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use builder::{Triggers, ValidateItem};
+use builder::ValidateItem;
 use serde::{Deserialize, Serialize};
 
 pub mod builder;
@@ -13,7 +13,6 @@ pub struct Config {
     ignore_file_path: String,
     sort_by_deadline: bool,
     remind_if_no_date: bool,
-    triggers: Triggers,
     validates: HashMap<String, ValidateItem>,
 }
 
@@ -44,9 +43,5 @@ impl Config {
 
     pub fn validates(&self) -> &HashMap<String, ValidateItem> {
         &self.validates
-    }
-
-    pub fn triggers(&self) -> &Triggers {
-        &self.triggers
     }
 }

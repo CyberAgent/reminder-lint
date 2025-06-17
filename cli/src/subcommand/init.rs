@@ -5,7 +5,7 @@ use promptuity::prompts::{Confirm, Input, Select, SelectOption};
 use promptuity::themes::FancyTheme;
 use promptuity::{Promptuity, Term};
 use reminder_lint_core::config::builder::{
-    FileConfig, Triggers, ValidateItem, DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH,
+    FileConfig, ValidateItem, DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH,
 };
 
 struct InitPromptResult {
@@ -73,10 +73,6 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
                 .with_default(default_config.remind_if_no_date),
         )?;
 
-        let triggers = Triggers {
-            datetime: datetime_format.clone(),
-        };
-
         let mut validates = default_config.validates;
         validates.insert(
             "datetime".to_string(),
@@ -90,7 +86,6 @@ fn init_prompt() -> Result<InitPromptResult, Error> {
             datetime_format,
             search_directory,
             remind_if_no_date,
-            triggers,
             validates,
         });
     }
