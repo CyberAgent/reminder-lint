@@ -31,6 +31,13 @@ pub(crate) fn convert_meta_regex(reg_str: &str) -> String {
     reg
 }
 
+pub(crate) fn contains_meta_matcher(pattern: &str) -> bool {
+    let converted_pattern = convert_pattern_to_regex(pattern);
+    Regex::new(r"\(\?P<\w+>.*\)")
+        .unwrap()
+        .is_match(&converted_pattern)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

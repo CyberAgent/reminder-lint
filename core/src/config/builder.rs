@@ -1,5 +1,7 @@
-use config::{Config as FileConfigBuilder, ConfigError};
+use crate::remind::meta::contains_meta_matcher;
+use config::{Config as FileConfigBuilder, ConfigError, Value};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::Config;
 
@@ -11,6 +13,12 @@ pub struct ConfigBuilder {
     config_file_path: Option<String>,
     ignore_file_path: Option<String>,
     sort_by_deadline: Option<bool>,
+    remind_if_no_date: Option<bool>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ValidateItem {
+    pub format: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -19,6 +27,7 @@ pub struct FileConfig {
     pub datetime_format: String,
     pub search_directory: String,
     pub remind_if_no_date: bool,
+    pub validates: HashMap<String, ValidateItem>,
 }
 
 impl Default for FileConfig {
@@ -28,7 +37,16 @@ impl Default for FileConfig {
             datetime_format: "%Y/%m/%d".to_string(),
             search_directory: ".".to_string(),
             remind_if_no_date: false,
+            validates: HashMap::new(),
         }
+    }
+}
+
+impl From<ValidateItem> for Value {
+    fn from(item: ValidateItem) -> Self {
+        let mut map = HashMap::<String, Value>::new();
+        map.insert("format".to_string(), item.format.into());
+        Value::from(map)
     }
 }
 
@@ -39,6 +57,14 @@ fn load_config(filename: &str) -> Result<FileConfig, ConfigError> {
         .set_default("datetime_format", default.datetime_format)?
         .set_default("search_directory", default.search_directory)?
         .set_default("remind_if_no_date", default.remind_if_no_date)?
+        .set_default(
+            "validates",
+            default
+                .validates
+                .into_iter()
+                .map(|(k, v)| (k, Value::from(v)))
+                .collect::<HashMap<String, Value>>(),
+        )?
         .add_source(config::File::with_name(filename).required(false))
         .add_source(config::Environment::with_prefix(REMIND_ENV_PREFIX))
         .build()?;
@@ -58,6 +84,7 @@ impl ConfigBuilder {
             config_file_path: None,
             ignore_file_path: None,
             sort_by_deadline: None,
+            remind_if_no_date: None,
         }
     }
 
@@ -76,6 +103,11 @@ impl ConfigBuilder {
         self
     }
 
+    pub fn remind_if_no_date(mut self, remind_if_no_date: Option<bool>) -> Self {
+        self.remind_if_no_date = remind_if_no_date;
+        self
+    }
+
     pub fn build(self) -> Result<Config, ConfigError> {
         let config_file_path = self
             .config_file_path
@@ -84,13 +116,23 @@ impl ConfigBuilder {
             .ignore_file_path
             .unwrap_or(DEFAULT_IGNORE_FILE_PATH.to_string());
         let file_config = load_config(&config_file_path)?;
+        let remind_if_no_date = self
+            .remind_if_no_date
+            .unwrap_or(file_config.remind_if_no_date);
+
+        if !file_config.validates.is_empty() && contains_meta_matcher(&file_config.comment_regex) {
+            return Err(ConfigError::Message(
+                "Validation and meta matcher features cannot be used together".to_string(),
+            ));
+        }
 
         Ok(Config {
             comment_regex: file_config.comment_regex,
             datetime_format: file_config.datetime_format,
             search_directory: file_config.search_directory,
+            remind_if_no_date,
+            validates: file_config.validates,
             ignore_file_path,
-            remind_if_no_date: file_config.remind_if_no_date,
             sort_by_deadline: self.sort_by_deadline.unwrap_or(false),
         })
     }
