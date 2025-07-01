@@ -68,7 +68,7 @@ jobs:
           git push -u origin HEAD
           git fetch origin main
           gh pr create --title "Release ${{ github.event.inputs.version }}" --body "$PR_BODY"
-          
+
           git tag "${{ github.event.inputs.version }}"
           git push origin "${{ github.event.inputs.version }}"
 
@@ -91,11 +91,21 @@ jobs:
 
       - uses: docker/metadata-action@v5
         id: meta
+        if: github.ref_name == 'main'
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=semver,pattern={{major}}
             type=raw,latest
+            type=raw,value=${{ matrix.target.platform }}
+            type=raw,value=${{ github.event.inputs.version }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        if: github.ref_name != 'main'
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
             type=raw,value=${{ matrix.target.platform }}
             type=raw,value=${{ github.event.inputs.version }}
 
