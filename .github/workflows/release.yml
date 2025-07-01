@@ -95,26 +95,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Generate Docker meta for main branch
-        uses: docker/metadata-action@v5
+      - uses: docker/metadata-action@v5
         id: meta
-        if: github.ref_name == 'main'
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=semver,pattern={{major}}
-            type=raw,latest
-            type=raw,value=${{ matrix.target.platform }}
-            type=raw,value=${{ github.event.inputs.version }}
-
-      - name: Generate Docker meta for other branches
-        uses: docker/metadata-action@v5
-        id: meta
-        if: github.ref_name != 'main'
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=${{ matrix.target.platform }}
+            type=semver,pattern={{major}},enable=${{ github.ref_name == 'main' }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.ref_name == 'main' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
             type=raw,value=${{ github.event.inputs.version }}
 
       - id: buildx
