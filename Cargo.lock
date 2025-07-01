@@ -782,7 +782,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "reminder-lint"
-version = "0.1.2"
+version = "0.2.0-canary.1"
 dependencies = [
  "anyhow",
  "argh",
@@ -797,7 +797,7 @@ dependencies = [
 
 [[package]]
 name = "reminder-lint-core"
-version = "0.1.2"
+version = "0.2.0-canary.1"
 dependencies = [
  "anyhow",
  "chrono",
