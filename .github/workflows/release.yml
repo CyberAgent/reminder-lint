@@ -59,18 +59,24 @@ jobs:
           OUTPUT: CHANGELOG.md
 
       - name: Cargo release commit
-        env:
-          PR_BODY: ${{ steps.git-cliff.outputs.content }}
         run: |
           git checkout -b release-${{ github.event.inputs.version }}
           git add CHANGELOG.md
           cargo release commit --execute --no-confirm
           git push -u origin HEAD
-          git fetch origin main
-          gh pr create --title "Release ${{ github.event.inputs.version }}" --body "$PR_BODY"
 
+      - name: Tag and push version
+        run: |
+          git fetch origin ${{ github.ref_name }}
           git tag "${{ github.event.inputs.version }}"
           git push origin "${{ github.event.inputs.version }}"
+
+      - name: Create release pull request
+        if: github.ref_name == 'main'
+        env:
+          PR_BODY: ${{ steps.git-cliff.outputs.content }}
+        run: |
+          gh pr create --title "Release ${{ github.event.inputs.version }}" --body "$PR_BODY" --base "main"
 
   build-and-push:
     needs:
