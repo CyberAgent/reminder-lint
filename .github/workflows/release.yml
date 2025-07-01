@@ -95,7 +95,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - uses: docker/metadata-action@v5
+      - name: Generate Docker meta for main branch
+        uses: docker/metadata-action@v5
         id: meta
         if: github.ref_name == 'main'
         with:
@@ -106,7 +107,8 @@ jobs:
             type=raw,value=${{ matrix.target.platform }}
             type=raw,value=${{ github.event.inputs.version }}
 
-      - uses: docker/metadata-action@v5
+      - name: Generate Docker meta for other branches
+        uses: docker/metadata-action@v5
         id: meta
         if: github.ref_name != 'main'
         with:
