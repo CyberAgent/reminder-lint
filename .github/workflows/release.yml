@@ -13,7 +13,8 @@ on:
         type: string
 
 jobs:
-  tag-version:
+  tag-version-on-main:
+    if: github.ref_name == 'main'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
@@ -72,11 +73,49 @@ jobs:
           git push origin "${{ github.event.inputs.version }}"
 
       - name: Create release pull request
-        if: github.ref_name == 'main'
         env:
           PR_BODY: ${{ steps.git-cliff.outputs.content }}
         run: |
           gh pr create --title "Release ${{ github.event.inputs.version }}" --body "$PR_BODY" --base "main"
+
+  tag-only-on-other:
+    if: github.ref_name != 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      tag: ${{ github.event.inputs.version }}
+      tag-flag: ${{ format('--tag={0}', github.event.inputs.version) }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Validate input
+        run: |
+          if [[ "${{ github.event.inputs.version }}" =~ ^v ]]; then
+            echo "Error: version must not start with 'v'"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag and push version
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag "${{ github.event.inputs.version }}"
+          git push origin "${{ github.event.inputs.version }}"
+
+  tag-version:
+    runs-on: ubuntu-24.04
+    needs: [tag-version-on-main, tag-only-on-other]
+    if: always()
+    outputs:
+      tag: ${{ needs.tag-version-on-main.outputs.tag || needs.tag-only-on-other.outputs.tag }}
+      tag-flag: ${{ needs.tag-version-on-main.outputs.tag-flag || needs.tag-only-on-other.outputs.tag-flag }}
+    steps:
+      - run: echo "Tagging is done."
 
   build-and-push:
     needs:
