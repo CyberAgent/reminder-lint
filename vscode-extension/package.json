@@ -1,0 +1,26 @@
+{
+  "name": "vscode-reminder-lint",
+  "displayName": "reminder-lint",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "categories": ["Other"],
+  "main": "./out/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "check": "biome check .",
+    "check:write": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3",
+    "@types/mocha": "10.0.7",
+    "@types/node": "20.14.15",
+    "@types/vscode": "1.92.0",
+    "typescript": "5.4.5"
+  }
+}
