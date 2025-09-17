@@ -24,10 +24,10 @@ runs:
         output=$(docker run -q --rm -v ${{ github.workspace }}:/work -w /work ghcr.io/cyberagent/reminder-lint:${{ inputs.image_tag }} ${{ inputs.args }} 2>&1) || exit_code=$?
 
         echo "${output}"
-        
+
         echo "stdout<<EOF" >> $GITHUB_OUTPUT
         echo "${output}" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-        
+
         exit $exit_code
       shell: bash
