@@ -1,0 +1,72 @@
+name: Version Bump and Changelog
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "new version"
+        type: string
+
+jobs:
+  create-version-pr:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Validate input
+        run: |
+          if [[ "${{ github.event.inputs.version }}" =~ ^v ]]; then
+            echo "Error: version must not start with 'v'"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.85
+
+      - name: Install cargo-release
+        run: cargo install cargo-release --locked
+
+      - name: Cargo release version
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          cargo release version --execute --no-confirm ${{ github.event.inputs.version }}
+
+      - id: git-cliff
+        name: Generate the changelog
+        uses: orhun/git-cliff-action@b946ed27a675d653b308f29a7bbad813b85bf7aa # v3.3.0
+        with:
+          config: cliff.toml
+          args: --verbose --tag "${{ github.event.inputs.version }}"
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Create pull request
+        env:
+          PR_BODY: ${{ steps.git-cliff.outputs.content }}
+        run: |
+          git checkout -b release-${{ github.event.inputs.version }}
+          git add CHANGELOG.md
+          cargo release commit --execute --no-confirm
+          git push -u origin HEAD
+          gh pr create --title "Release ${{ github.event.inputs.version }}" --body "$PR_BODY" --base "main"
+
+      - name: Tag and push version
+        run: |
+          git fetch origin ${{ github.ref_name }}
+          git tag "${{ github.event.inputs.version }}"
+          git push origin "${{ github.event.inputs.version }}"
+
