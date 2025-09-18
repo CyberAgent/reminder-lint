@@ -78,6 +78,7 @@ jobs:
 
       - name: Run
         id: run
+        continue-on-error: true
         uses: CyberAgent/reminder-lint@0.1.2
         with:
           args: run
