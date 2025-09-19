@@ -47,7 +47,7 @@ jobs:
 
       - id: git-cliff
         name: Generate the changelog
-        uses: orhun/git-cliff-action@b946ed27a675d653b308f29a7bbad813b85bf7aa # v3.3.0
+        uses: orhun/git-cliff-action@98c93442bb05a455a77bee982867857ae748eeea # v4.5.1
         with:
           config: cliff.toml
           args: --verbose --tag "${{ github.event.inputs.version }}"
