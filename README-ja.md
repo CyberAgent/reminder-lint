@@ -28,6 +28,11 @@ $ reminder-lint run
 
 ## インストール
 
+### Homebrew
+```shell
+$ brew install CyberAgent/tap/reminder-lint
+```
+
 ### Docker
 ```shell
 $ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent/reminder-lint:latest run
