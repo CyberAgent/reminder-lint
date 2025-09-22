@@ -1,7 +1,7 @@
 # reminder-lint
 `reminder-lint` is a code reminder tool that supports all languages and configuration files.
 
-[Use with GitHub Actions](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)  
+[Use with GitHub Actions](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)
 [Install in local environment](https://github.com/CyberAgent/reminder-lint#Install)
 
 ## Concept
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # Recommended to specify with a full-length commit SHA
         with:
           args: run
 ```
@@ -85,10 +85,10 @@ jobs:
       - name: Run
         id: run
         continue-on-error: true
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # Recommended to specify with a full-length commit SHA
         with:
           args: run
-          
+
       - name: Notify
         if: ${{ steps.run.outputs.stdout != '' }}
         uses: slackapi/slack-github-action@v2.0.0
@@ -158,6 +158,37 @@ if perfect_feature_enabled {
 ```
 
 However, the more complex the format, the more likely it is that non-conforming comments will be missed during inspection. Therefore, it is recommended to use the simplest format possible.
+
+## Validation of Reminder Comments
+`reminder-lint` can validate reminder comments.
+
+For example, by configuring `remind.yml` as follows, you can validate the date format and assigned user name format as mandatory.
+
+```yml
+comment_regex: remind:.*
+search_directory: .
+trigger:
+  datetime: "%Y/%m/%d"
+validate:
+  datetime:
+    format: "%Y/%m/%d"
+  assignee:
+    format: "@(kqito|arabian9ts|dora1998)"
+```
+
+When you run `reminder-lint validate` in this state, reminder comments that do not follow the expected format will be detected, and the process will terminate with exit code 1.
+
+```shell
+./main.go:11 // remind: hoge: missing date and assignee
+Missing `assignee` format: @(kqito|arabian9ts|dora1998)
+Missing `datetime` format: %Y/%m/%d
+
+./main.go:14 // remind: 2024/05/02: missing assginee
+Missing `assignee` format: @(kqito|arabian9ts|dora1998)
+
+./main.go:17 // remind: @arabian9ts missing date
+Missing `datetime` format: %Y/%m/%d
+```
 
 ## Migration from pure TODOs
 You can use `reminder-lint` to gradually remove TODOs from your codebase that already exist.

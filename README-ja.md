@@ -1,15 +1,15 @@
 # reminder-lint
-`reminder-lint`はあらゆる言語や設定ファイルに対応した、コードリマインドツールです。  
+`reminder-lint`はあらゆる言語や設定ファイルに対応した、コードリマインドツールです。
 
-[GitHub Actionsで使用する](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)  
+[GitHub Actionsで使用する](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)
 [ローカル環境にインストールする](https://github.com/CyberAgent/reminder-lint#Install)
 
 ## コンセプト
-`reminder-lint`は、コード上のTODOコメントを消し去ることを目標に開発されています。  
-コードを書きながら、後回しにしたい処理には通常TODOコメントを残しますが、`reminder-lint`では規約に沿ったコメントを残すことで、時間が経過してもTODOコメントの消し忘れに気づくことができます。  
+`reminder-lint`は、コード上のTODOコメントを消し去ることを目標に開発されています。
+コードを書きながら、後回しにしたい処理には通常TODOコメントを残しますが、`reminder-lint`では規約に沿ったコメントを残すことで、時間が経過してもTODOコメントの消し忘れに気づくことができます。
 
 ## コメントのSyntax
-デフォルトでは、`reminder-lint`はカレントディレクトリ配下のファイルを再帰的に操作し、正規表現`remind:\W?`にマッチする行を探索します。  
+デフォルトでは、`reminder-lint`はカレントディレクトリ配下のファイルを再帰的に操作し、正規表現`remind:\W?`にマッチする行を探索します。
 正規表現にマッチした行のうち`%Y/%m/%d`表記にマッチする日付を探し、記述された日付が現在時刻を超過している場合に，終了コード1とともにプロセスを終了します。
 具体的には、TODOコメントの代わりに、以下のようにコメントを記述します。
 ```rust
@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # ハッシュバージョンで固定することを推奨します
         with:
           args: run
 ```
@@ -84,10 +84,10 @@ jobs:
       - name: Run
         id: run
         continue-on-error: true
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # ハッシュバージョンをピン留めすることを推奨します
         with:
           args: run
-          
+
       - name: Notify
         if: ${{ steps.run.outputs.stdout != '' }}
         uses: slackapi/slack-github-action@v2.0.0
@@ -116,7 +116,7 @@ jobs:
 ```
 
 ## カスタマイズ
-チームによっては、リマインドコメントの記法を変更したり、時刻単位でのリマインドタイミングを指定したいケースが想定されます。  
+チームによっては、リマインドコメントの記法を変更したり、時刻単位でのリマインドタイミングを指定したいケースが想定されます。
 
 `reminder-lint`は設定ファイルをサポートしており、これらの記法をカスタマイズして利用することが可能です。
 `init`を実行すると、`remind.yml`ファイルや`.remindignore`ファイルが作成されます。
@@ -158,9 +158,39 @@ if perfect_feature_enabled {
 
 ただし、フォーマットを複雑にするほど、フォーマットに則っていないコメントが検査が漏れる可能性があるため、できるだけシンプルなフォーマットで運用することを推奨します。
 
+## リマインドコメントのバリデーション
+`reminder-lint`はリマインドコメントに対してバリデーションを行うことができます。
+
+例えば、`remind.yml`を以下のように設定することで、日付のフォーマットとアサインされたユーザー名のフォーマットを必須としてバリデーションすることが可能です。
+
+```yml
+comment_regex: remind:.*
+search_directory: .
+trigger:
+  datetime: "%Y/%m/%d"
+validate:
+  datetime:
+    format: "%Y/%m/%d"
+  assignee:
+    format: "@(kqito|arabian9ts|dora1998)"
+```
+
+この状態で `reminder-lint validate` を実行すると、期待するフォーマットに則っていないリマインドコメントが検出され、終了コード1でプロセスが終了します。
+
+```shell
+./main.go:11 // remind: hoge: missing date and assignee
+Missing `assignee` format: @(kqito|arabian9ts|dora1998)
+Missing `datetime` format: %Y/%m/%d
+
+./main.go:14 // remind: 2024/05/02: missing assginee
+Missing `assignee` format: @(kqito|arabian9ts|dora1998)
+
+./main.go:17 // remind: @arabian9ts missing date
+Missing `datetime` format: %Y/%m/%d
+```
 
 ## TODOからのマイグレーション
-既にあるTODOコメントを処理していくために、`reminder-lint`を利用して段階的にコードベースのTODOの削除を進めることができます。  
+既にあるTODOコメントを処理していくために、`reminder-lint`を利用して段階的にコードベースのTODOの削除を進めることができます。
 1. 最初は、`comment_regex: (?i)TODO`を設定し、既存のTODOコメントをリマンド対象にします。
 2. 日付が含まれていないTODOコメントをリマインドするか、プロジェクトによって設定ファイルで挙動を変更します(`remind_if_no_date`)。
 3. 削除したいTODOのリマインド日を決めて、TODOコメントに日付を含めるように修正します。
