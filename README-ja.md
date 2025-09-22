@@ -158,6 +158,36 @@ if perfect_feature_enabled {
 
 ただし、フォーマットを複雑にするほど、フォーマットに則っていないコメントが検査が漏れる可能性があるため、できるだけシンプルなフォーマットで運用することを推奨します。
 
+## リマインドコメントのバリデーション
+`reminder-lint`はリマインドコメントに対してバリデーションを行うことができます。
+
+例えば、`remind.yml`を以下のように設定することで、日付のフォーマットとアサインされたユーザー名のフォーマットを必須としてバリデーションすることが可能です。
+
+```yml
+comment_regex: remind:.*
+search_directory: .
+trigger:
+  datetime: "%Y/%m/%d"
+validate:
+  datetime:
+    format: "%Y/%m/%d"
+  assignee:
+    format: "@(kqito|arabian9ts|dora1998)"
+```
+
+この状態で `reminder-lint validate` を実行すると、期待するフォーマットに則っていないリマインドコメントが検出され、終了コード1でプロセスが終了します。
+
+```shell
+./main.go:11 // remind: hoge: missing date and assignee
+Missing `assignee` format: @(kqito|arabian9ts|dora1998)
+Missing `datetime` format: %Y/%m/%d
+
+./main.go:14 // remind: 2024/05/02: missing assginee
+Missing `assignee` format: @(kqito|arabian9ts|dora1998)
+
+./main.go:17 // remind: @arabian9ts missing date
+Missing `datetime` format: %Y/%m/%d
+```
 
 ## TODOからのマイグレーション
 既にあるTODOコメントを処理していくために、`reminder-lint`を利用して段階的にコードベースのTODOの削除を進めることができます。
