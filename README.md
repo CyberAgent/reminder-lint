@@ -1,7 +1,7 @@
 # reminder-lint
 `reminder-lint` is a code reminder tool that supports all languages and configuration files.
 
-[Use with GitHub Actions](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)  
+[Use with GitHub Actions](https://github.com/CyberAgent/reminder-lint#GitHub-Actions)
 [Install in local environment](https://github.com/CyberAgent/reminder-lint#Install)
 
 ## Concept
@@ -88,7 +88,7 @@ jobs:
         uses: CyberAgent/reminder-lint@0.1.2
         with:
           args: run
-          
+
       - name: Notify
         if: ${{ steps.run.outputs.stdout != '' }}
         uses: slackapi/slack-github-action@v2.0.0
