@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # Recommended to specify with a full-length commit SHA
         with:
           args: run
 ```
@@ -85,7 +85,7 @@ jobs:
       - name: Run
         id: run
         continue-on-error: true
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # Recommended to specify with a full-length commit SHA
         with:
           args: run
 

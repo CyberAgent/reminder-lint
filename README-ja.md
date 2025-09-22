@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # ハッシュバージョンで固定することを推奨します
         with:
           args: run
 ```
@@ -84,7 +84,7 @@ jobs:
       - name: Run
         id: run
         continue-on-error: true
-        uses: CyberAgent/reminder-lint@0.1.2
+        uses: CyberAgent/reminder-lint@latest # ハッシュバージョンをピン留めすることを推奨します
         with:
           args: run
 
