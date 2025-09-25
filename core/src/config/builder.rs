@@ -120,7 +120,7 @@ impl ConfigBuilder {
                     return Err(ConfigError::Message(format!(
                         "Unsupported configuration file format '.{}'. Only {} files are supported.",
                         extension,
-                        CONFIG_FILE_EXTENSIONS.join(" and ")
+                        CONFIG_FILE_EXTENSIONS.join(" or ")
                     )));
                 }
 
