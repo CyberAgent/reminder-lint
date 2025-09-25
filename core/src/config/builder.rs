@@ -112,18 +112,6 @@ impl ConfigBuilder {
     pub fn build(self) -> Result<Config, ConfigError> {
         let config_file_path = match self.config_file_path {
             Some(path) => {
-                let has_valid_extension =
-                    CONFIG_FILE_EXTENSIONS.iter().any(|ext| path.ends_with(ext));
-
-                if !has_valid_extension {
-                    let extension = path.rsplit('.').next().unwrap_or("unknown");
-                    return Err(ConfigError::Message(format!(
-                        "Unsupported configuration file format '.{}'. Only {} files are supported.",
-                        extension,
-                        CONFIG_FILE_EXTENSIONS.join(" or ")
-                    )));
-                }
-
                 if !std::path::Path::new(&path).exists() {
                     return Err(ConfigError::Message(format!(
                         "Config file '{}' does not exist",
