@@ -5,7 +5,8 @@ use std::collections::HashMap;
 
 use super::Config;
 
-pub const DEFAULT_CONFIG_FILE_PATH: &str = "remind.yml";
+pub const DEFAULT_CONFIG_FILE_PATHS: [&str; 2] = ["remind.yml", "remind.yaml"];
+pub const CONFIG_FILE_EXTENSIONS: [&str; 2] = [".yaml", ".yml"];
 pub const DEFAULT_IGNORE_FILE_PATH: &str = ".remindignore";
 const REMIND_ENV_PREFIX: &str = "REMIND";
 
@@ -65,11 +66,11 @@ fn load_config(filename: &str) -> Result<FileConfig, ConfigError> {
                 .map(|(k, v)| (k, Value::from(v)))
                 .collect::<HashMap<String, Value>>(),
         )?
-        .add_source(config::File::with_name(filename).required(false))
+        .add_source(config::File::new(filename, config::FileFormat::Yaml).required(false))
         .add_source(config::Environment::with_prefix(REMIND_ENV_PREFIX))
         .build()?;
-    let conf = settings.try_deserialize::<FileConfig>()?;
-    Ok(conf)
+
+    settings.try_deserialize::<FileConfig>()
 }
 
 impl Default for ConfigBuilder {
@@ -86,6 +87,14 @@ impl ConfigBuilder {
             sort_by_deadline: None,
             remind_if_no_date: None,
         }
+    }
+
+    pub fn find_default_configs() -> Vec<String> {
+        DEFAULT_CONFIG_FILE_PATHS
+            .iter()
+            .filter(|path| std::path::Path::new(path).exists())
+            .map(|p| p.to_string())
+            .collect()
     }
 
     pub fn config_file_path(mut self, config_file_path: Option<String>) -> Self {
@@ -109,9 +118,22 @@ impl ConfigBuilder {
     }
 
     pub fn build(self) -> Result<Config, ConfigError> {
-        let config_file_path = self
-            .config_file_path
-            .unwrap_or(DEFAULT_CONFIG_FILE_PATH.to_string());
+        let config_file_path = match self.config_file_path {
+            Some(path) => {
+                if !std::path::Path::new(&path).exists() {
+                    return Err(ConfigError::Message(format!(
+                        "Config file '{}' does not exist",
+                        path
+                    )));
+                }
+
+                path
+            }
+            None => Self::find_default_configs()
+                .into_iter()
+                .next()
+                .unwrap_or_else(|| DEFAULT_CONFIG_FILE_PATHS[0].to_string()),
+        };
         let ignore_file_path = self
             .ignore_file_path
             .unwrap_or(DEFAULT_IGNORE_FILE_PATH.to_string());
