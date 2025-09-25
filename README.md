@@ -162,7 +162,7 @@ However, the more complex the format, the more likely it is that non-conforming 
 ## Validation of Reminder Comments
 `reminder-lint` can validate reminder comments.
 
-For example, by configuring `remind.yml` as follows, you can validate the date format and assigned user name format as mandatory.
+For example, by configuring `remind.yml` (or `remind.yaml`) as follows, you can validate the date format and assigned user name format as mandatory.
 
 ```yml
 comment_regex: remind:.*

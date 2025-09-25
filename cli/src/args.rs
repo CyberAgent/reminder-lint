@@ -20,7 +20,7 @@ pub enum Subcommand {
 #[argh(subcommand, name = "run")]
 /// run reminder-lint with a path
 pub struct RunCommand {
-    /// path to the config file (default: ./remind.yml)
+    /// path to the config file (default: ./remind.yaml or ./remind.yml)
     #[argh(option, short = 'c')]
     pub config_file_path: Option<String>,
     /// path to the ignore file (default: ./.remindignore)
@@ -40,7 +40,7 @@ pub struct InitCommand {}
 #[argh(subcommand, name = "list")]
 /// list reminder-lint comments
 pub struct ListCommand {
-    /// path to the config file (default: ./remind.yml)
+    /// path to the config file (default: ./remind.yaml or ./remind.yml)
     #[argh(option, short = 'c')]
     pub config_file_path: Option<String>,
     /// path to the ignore file (default: ./.remindignore)
@@ -55,7 +55,7 @@ pub struct ListCommand {
 #[argh(subcommand, name = "validate")]
 /// validate reminder-lint comments
 pub struct ValidateCommand {
-    /// path to the config file (default: ./remind.yml)
+    /// path to the config file (default: ./remind.yaml or ./remind.yml)
     #[argh(option, short = 'c')]
     pub config_file_path: Option<String>,
     /// path to the ignore file (default: ./.remindignore)

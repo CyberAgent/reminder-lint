@@ -5,7 +5,7 @@ use promptuity::prompts::{Confirm, Input, Select, SelectOption};
 use promptuity::themes::FancyTheme;
 use promptuity::{Promptuity, Term};
 use reminder_lint_core::config::builder::{
-    FileConfig, ValidateItem, DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH,
+    FileConfig, ValidateItem, DEFAULT_CONFIG_FILE_PATHS, DEFAULT_IGNORE_FILE_PATH,
 };
 
 struct InitPromptResult {
@@ -15,13 +15,19 @@ struct InitPromptResult {
 
 fn init_prompt() -> Result<InitPromptResult, Error> {
     // TODO: Add support for finding root of the project
-    let is_config_file_exists = std::path::Path::new(DEFAULT_CONFIG_FILE_PATH).exists();
+    let existing_configs: Vec<&str> = DEFAULT_CONFIG_FILE_PATHS
+        .iter()
+        .filter(|path| std::path::Path::new(path).exists())
+        .copied()
+        .collect();
+    let is_config_file_exists = !existing_configs.is_empty();
     let is_ignore_file_exists = std::path::Path::new(DEFAULT_IGNORE_FILE_PATH).exists();
 
     if is_config_file_exists && is_ignore_file_exists {
+        let config_file = existing_configs.join(" and ");
         return Err(Error::msg(format!(
             "{} and {} already exists",
-            DEFAULT_CONFIG_FILE_PATH, DEFAULT_IGNORE_FILE_PATH
+            config_file, DEFAULT_IGNORE_FILE_PATH
         )));
     }
 
@@ -108,19 +114,24 @@ pub fn execute_init(_command: InitCommand) -> Result<(), Error> {
 
     if let Some(config) = config {
         let yaml = serde_yaml::to_string(&config)?;
-        std::fs::write(DEFAULT_CONFIG_FILE_PATH, yaml)?;
+        let default_file = DEFAULT_CONFIG_FILE_PATHS[0];
+        std::fs::write(default_file, yaml)?;
 
         pretty_print(
-            format!("Successfully create ./{}", DEFAULT_CONFIG_FILE_PATH),
+            format!("Successfully create ./{}", default_file),
             Status::Success,
         );
     }
 
     if ignore {
-        std::fs::write(
-            DEFAULT_IGNORE_FILE_PATH,
-            format!("{}\n", DEFAULT_CONFIG_FILE_PATH),
-        )?;
+        // Include all possible config files in ignore file
+        let ignore_content = DEFAULT_CONFIG_FILE_PATHS
+            .iter()
+            .map(|path| path.to_string())
+            .collect::<Vec<_>>()
+            .join("\n")
+            + "\n";
+        std::fs::write(DEFAULT_IGNORE_FILE_PATH, ignore_content)?;
         pretty_print(
             format!("Successfully create ./{}", DEFAULT_IGNORE_FILE_PATH),
             Status::Success,

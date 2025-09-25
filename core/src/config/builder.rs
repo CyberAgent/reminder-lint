@@ -5,7 +5,8 @@ use std::collections::HashMap;
 
 use super::Config;
 
-pub const DEFAULT_CONFIG_FILE_PATH: &str = "remind.yml";
+pub const DEFAULT_CONFIG_FILE_PATHS: [&str; 2] = ["remind.yml", "remind.yaml"];
+pub const CONFIG_FILE_EXTENSIONS: [&str; 2] = [".yaml", ".yml"];
 pub const DEFAULT_IGNORE_FILE_PATH: &str = ".remindignore";
 const REMIND_ENV_PREFIX: &str = "REMIND";
 
@@ -65,11 +66,11 @@ fn load_config(filename: &str) -> Result<FileConfig, ConfigError> {
                 .map(|(k, v)| (k, Value::from(v)))
                 .collect::<HashMap<String, Value>>(),
         )?
-        .add_source(config::File::with_name(filename).required(false))
+        .add_source(config::File::new(filename, config::FileFormat::Yaml).required(false))
         .add_source(config::Environment::with_prefix(REMIND_ENV_PREFIX))
         .build()?;
-    let conf = settings.try_deserialize::<FileConfig>()?;
-    Ok(conf)
+
+    settings.try_deserialize::<FileConfig>()
 }
 
 impl Default for ConfigBuilder {
@@ -109,9 +110,35 @@ impl ConfigBuilder {
     }
 
     pub fn build(self) -> Result<Config, ConfigError> {
-        let config_file_path = self
-            .config_file_path
-            .unwrap_or(DEFAULT_CONFIG_FILE_PATH.to_string());
+        let config_file_path = match self.config_file_path {
+            Some(path) => {
+                let has_valid_extension =
+                    CONFIG_FILE_EXTENSIONS.iter().any(|ext| path.ends_with(ext));
+
+                if !has_valid_extension {
+                    let extension = path.rsplit('.').next().unwrap_or("unknown");
+                    return Err(ConfigError::Message(format!(
+                        "Unsupported configuration file format '.{}'. Only {} files are supported.",
+                        extension,
+                        CONFIG_FILE_EXTENSIONS.join(" and ")
+                    )));
+                }
+
+                if !std::path::Path::new(&path).exists() {
+                    return Err(ConfigError::Message(format!(
+                        "Config file '{}' does not exist",
+                        path
+                    )));
+                }
+
+                path
+            }
+            None => DEFAULT_CONFIG_FILE_PATHS
+                .iter()
+                .find(|path| std::path::Path::new(path).exists())
+                .map(|p| p.to_string())
+                .unwrap_or_else(|| DEFAULT_CONFIG_FILE_PATHS[0].to_string()),
+        };
         let ignore_file_path = self
             .ignore_file_path
             .unwrap_or(DEFAULT_IGNORE_FILE_PATH.to_string());
