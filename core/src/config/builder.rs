@@ -89,6 +89,14 @@ impl ConfigBuilder {
         }
     }
 
+    pub fn find_default_configs() -> Vec<String> {
+        DEFAULT_CONFIG_FILE_PATHS
+            .iter()
+            .filter(|path| std::path::Path::new(path).exists())
+            .map(|p| p.to_string())
+            .collect()
+    }
+
     pub fn config_file_path(mut self, config_file_path: Option<String>) -> Self {
         self.config_file_path = config_file_path;
         self
@@ -121,10 +129,9 @@ impl ConfigBuilder {
 
                 path
             }
-            None => DEFAULT_CONFIG_FILE_PATHS
-                .iter()
-                .find(|path| std::path::Path::new(path).exists())
-                .map(|p| p.to_string())
+            None => Self::find_default_configs()
+                .into_iter()
+                .next()
                 .unwrap_or_else(|| DEFAULT_CONFIG_FILE_PATHS[0].to_string()),
         };
         let ignore_file_path = self

@@ -5,7 +5,7 @@ use promptuity::prompts::{Confirm, Input, Select, SelectOption};
 use promptuity::themes::FancyTheme;
 use promptuity::{Promptuity, Term};
 use reminder_lint_core::config::builder::{
-    FileConfig, ValidateItem, DEFAULT_CONFIG_FILE_PATHS, DEFAULT_IGNORE_FILE_PATH,
+    ConfigBuilder, FileConfig, ValidateItem, DEFAULT_CONFIG_FILE_PATHS, DEFAULT_IGNORE_FILE_PATH,
 };
 
 struct InitPromptResult {
@@ -15,19 +15,15 @@ struct InitPromptResult {
 
 fn init_prompt() -> Result<InitPromptResult, Error> {
     // TODO: Add support for finding root of the project
-    let existing_configs: Vec<&str> = DEFAULT_CONFIG_FILE_PATHS
-        .iter()
-        .filter(|path| std::path::Path::new(path).exists())
-        .copied()
-        .collect();
+    let existing_configs = ConfigBuilder::find_default_configs();
     let is_config_file_exists = !existing_configs.is_empty();
     let is_ignore_file_exists = std::path::Path::new(DEFAULT_IGNORE_FILE_PATH).exists();
 
     if is_config_file_exists && is_ignore_file_exists {
-        let config_file = existing_configs.join(" and ");
+        let config_files = existing_configs.join(" and ");
         return Err(Error::msg(format!(
             "{} and {} already exists",
-            config_file, DEFAULT_IGNORE_FILE_PATH
+            config_files, DEFAULT_IGNORE_FILE_PATH
         )));
     }
 
