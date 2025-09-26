@@ -38,6 +38,11 @@ $ brew install CyberAgent/tap/reminder-lint
 $ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent/reminder-lint:latest run
 ```
 
+### [aqua](https://aquaproj.github.io/)
+```shell
+$ aqua g -i CyberAgent/reminder-lint
+```
+
 ### Binary
 ビルド済みのバイナリを[リリース](https://github.com/CyberAgent/reminder-lint/releases/latest)からインストールできます。
 
