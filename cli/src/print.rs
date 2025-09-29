@@ -7,7 +7,6 @@ pub enum Status {
     Success,
 }
 
-// signle print function that passable status 'error' or 'warning' or nothing
 pub(crate) fn pretty_print(message: impl Display, status: Status) {
     match status {
         Status::Error => println!("\x1b[31m[ERROR]\x1b[0m {}", message),
