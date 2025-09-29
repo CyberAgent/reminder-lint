@@ -14,7 +14,6 @@ struct InitPromptResult {
 }
 
 fn init_prompt() -> Result<InitPromptResult, Error> {
-    // TODO: Add support for finding root of the project
     let existing_configs = ConfigBuilder::find_default_configs();
     let is_config_file_exists = !existing_configs.is_empty();
     let is_ignore_file_exists = std::path::Path::new(DEFAULT_IGNORE_FILE_PATH).exists();
@@ -120,7 +119,6 @@ pub fn execute_init(_command: InitCommand) -> Result<(), Error> {
     }
 
     if ignore {
-        // Include all possible config files in ignore file
         let ignore_content = DEFAULT_CONFIG_FILE_PATHS
             .iter()
             .map(|path| path.to_string())
