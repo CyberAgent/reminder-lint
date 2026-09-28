@@ -73,7 +73,7 @@ pub fn list_reminders(config: &Config) -> Result<Vec<Remind>, Error> {
     }
 
     if config.sort_by_deadline() {
-        reminds.sort_by(|a, b| a.datetime.cmp(&b.datetime));
+        reminds.sort_by_key(|remind| remind.datetime);
     }
 
     Ok(reminds)
