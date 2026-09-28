@@ -43,6 +43,11 @@ $ docker run --rm -v "$(pwd):/workspace" --workdir /workspace ghcr.io/cyberagent
 $ aqua g -i CyberAgent/reminder-lint
 ```
 
+### [mise](https://mise.jdx.dev/)
+```shell
+$ mise use -g aqua:CyberAgent/reminder-lint
+```
+
 ### Binary
 ビルド済みのバイナリを[リリース](https://github.com/CyberAgent/reminder-lint/releases/latest)からインストールできます。
 
